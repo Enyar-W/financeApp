@@ -1,14 +1,7 @@
 import { Group, Line, Text, Polyline, Rect } from 'zrender'
 
 export default class hexagon {
-  chartGroup: Group = new Group({
-    x: 0,
-    y: 0,
-    originX: 0,
-    originY: 0,
-    scaleX: 1,
-    scaleY: 1
-  })
+  chartGroup: Group
   shapeGroup: Group = new Group()
   valueGroup: Group = new Group()
   valueArr: Text[] = []
@@ -27,6 +20,15 @@ export default class hexagon {
     const { chartSize } = this.props
     // this.r = (this.centerY - 50 - 8) / chartSize < 20 ? 20 : (this.centerY - 50 - 8) / chartSize
     this.r = this.centerY / chartSize < 20 ? 20 : this.centerY / chartSize
+
+    this.chartGroup = new Group({
+      x: 0,
+      y: 0,
+      originX: this.centerX,
+      originY: this.centerY,
+      scaleX: 1,
+      scaleY: 1
+    })
     this.init()
   }
 

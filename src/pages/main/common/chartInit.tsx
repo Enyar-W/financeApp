@@ -3,16 +3,13 @@ import * as zrender from 'zrender';
 import wheel24 from "./../wheel24/wheel24";
 import hexagon from "./../hexagon/hexagon";
 export default class chart extends Component<appOption, commonOption> {
-  zr: zrender.ZRenderType | null
+  zr: zrender.ZRenderType | null = null
   chartIns: hexagon | null = null
-  width: number
-  height: number
+  width: number = 0
+  height: number = 0
   chartWrapper: [number, number] = [0, 0]
   constructor (props) {
     super(props)
-    this.zr = null
-    this.width = 0
-    this.height = 0
   }
   componentDidMount () {
     this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
@@ -36,32 +33,24 @@ export default class chart extends Component<appOption, commonOption> {
     }
     if (this.props.plus !== prevProps.plus) {
       this.zr?.resize()
-      this.width = this.zr?.getWidth() || 0;
-      this.height = this.zr?.getHeight() || 0;
       const group = this.chartIns?.getChartGroup().getBoundingRect()
-      console.log('group', group?.x, group?.y, group?.width, group?.height)
-     
-      // let originX = (group?.x || 0) + (group?.width || 0) / 2 + (this.width - this.chartWrapper[0]) / 2
-      // let originY = (group?.y || 0) + (group?.height || 0) / 2 + (this.height - this.chartWrapper[1]) / 2
-      let originX = this.width / 2 
-      let originY = this.height / 2
-      if (this.chartWrapper[0] >= this.width) {
-        originX = this.chartWrapper[0] / 2
-      }
-      if (this.chartWrapper[1] >= this.height) {
-        originY = this.chartWrapper[1] / 2
-      }
-      // console.log(originX, originY)
+
+      const groupX = group?.x || 0
+      const groupY = group?.y || 0
+      const groupWidth = group?.width || 0
+      const groupHeight = group?.height || 0
+      const offsetX = (this.width - this.chartWrapper[0]) / 2
+
+      console.log('this.width: ', this.width, 'chartWrapper[0]: ', this.chartWrapper[0], 'groupX: ', groupX, 'offsetX: ', offsetX)
+      // e.offsetX - (e.offsetX - x) * k
       this.chartIns?.getChartGroup()?.attr({
         scaleX: this.props.plus,
         scaleY: this.props.plus,
-        x: 0,
-        y: 0
-        // x: ((group?.x || 0) - (group?.width || 0) * this.props.plus) / 2,
-        // y: ((group?.y || 0) - (group?.height || 0) * this.props.plus) / 2
-        // originX: ((group?.x || 0) + ((group?.width || 0) * this.props.plus) / 2),
-        // originY: ((group?.y || 0) + ((group?.height || 0) * this.props.plus) / 2)
+        originX: groupX + groupWidth / 2,
+        originY: groupY + groupHeight / 2, 
       })
+      const group1 = this.chartIns?.getChartGroup().getBoundingRect()
+      console.log('groupX', group1?.x)
       return
     }
     this.zr?.clear()
@@ -99,13 +88,16 @@ export default class chart extends Component<appOption, commonOption> {
     let width = '100%'
     let height = '100%'
     const chartR = this.chartIns?.getR() || 0
-    const length = chartR * this.props.chartSize * 2 * this.props.plus
-    if (length > this.chartWrapper[0]) {
-      width = length + 'px' 
+    const length = chartR * this.props.chartSize * 2 * this.props.plus + 100
+    if (this.chartWrapper[0] && length > this.chartWrapper[0]) {
+      width = length + 'px'
+      this.width = length - 50
     }
-    if (length > this.chartWrapper[1]) {
+    if (this.chartWrapper[0] && length > this.chartWrapper[1]) {
       height = length + 'px'
+      this.height = length - 50
     }
+    console.log('this.width: ', this.width, width, length)
     return <div id="chart" style={{ width: width, height: height }}></div>
   }
 }
