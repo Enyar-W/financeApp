@@ -30,6 +30,8 @@ export default class hexagon {
       scaleY: 1
     })
     this.init()
+    document.addEventListener('moveX', this.moveXHandler.bind(this))
+    document.addEventListener('moveY', this.moveYHandler.bind(this))
   }
 
   init () {
@@ -218,5 +220,46 @@ export default class hexagon {
   }
   getR () {
     return this.r
+  }
+
+  scale (plus: number): {x : number, y: number} {
+    const group = this.chartGroup.getBoundingRect()
+
+    const groupX = group?.x || 0
+    const groupY = group?.y || 0
+    const groupWidth = group?.width || 0
+    const groupHeight = group?.height || 0
+    this.chartGroup.attr({
+      scaleX: plus,
+      scaleY: plus,
+      originX: groupX + groupWidth / 2,
+      originY: groupY + groupHeight / 2,
+    })
+    const scale = {
+      x: 0,
+      y: 0
+    }
+    const length = this.r * this.props.chartSize * 2 * plus
+    if (length > this.props.width) {
+      scale.x = this.props.width * this.props.width / length
+    }
+    if (length > this.props.height) {
+      scale.y = this.props.height * this.props.height / length
+    }
+    return scale
+  }
+  moveXHandler (e: MouseEvent) {
+    const { movement } = e.detail
+    console.log('moveXHandler', e.detail)
+    this.chartGroup.attr({
+      originX: this.chartGroup.originX + movement
+    })
+  }
+  moveYHandler (e: MouseEvent) {
+    const { movement } = e.detail
+    console.log('moveXHandler', e.detail)
+    this.chartGroup.attr({
+      originY: this.chartGroup.originY + movement
+    })
   }
 }

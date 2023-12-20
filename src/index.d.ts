@@ -1,3 +1,5 @@
+import { ZRenderType } from "zrender"
+
 type chartType = 'wheel24' | 'squal9' | 'squal4' | 'hexagon' | 'master'
 interface chartTypes {
   currentChartType: chartType,
@@ -42,6 +44,7 @@ interface commonOption {
 }
 
 interface chartOption extends commonOption{
+  zr: ZRenderType
   width: number,
   height: number,
   getBg?: function,
