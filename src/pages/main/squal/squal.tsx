@@ -6,7 +6,7 @@ function getClass (isCustom: boolean, isCorner: boolean, isCenter = false) {
   if (isCenter) className += ' center'
   return className
 }
-export default function squal9 ({ beginValue, step, chartSize }: commonOption) {
+export default function squal9 ({ chartSize }: commonOption) {
   const matrix = chartSize * 2 + 2
   const rows = []
 

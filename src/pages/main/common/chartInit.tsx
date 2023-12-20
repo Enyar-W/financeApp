@@ -2,15 +2,19 @@ import { Component } from 'react';
 import * as zrender from 'zrender';
 import wheel24 from "./../wheel24/wheel24";
 import hexagon from "./../hexagon/hexagon";
+
+import CanvasPainter from 'zrender/lib/canvas/Painter';
+zrender.registerPainter('canvas', CanvasPainter);
+
 export default class chart extends Component<appOption, commonOption> {
   zr: zrender.ZRenderType | null = null
   chartIns: hexagon | null = null
   width: number = 0
   height: number = 0
   chartWrapper: [number, number] = [0, 0]
-  constructor (props) {
-    super(props)
-  }
+  // constructor (props) {
+  //   super(props)
+  // }
   componentDidMount () {
     this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
     // this.chartGroup = null
@@ -19,7 +23,7 @@ export default class chart extends Component<appOption, commonOption> {
     this.chartWrapper = [this.width, this.height]
     this.getChart()
   }
-  componentDidUpdate(prevProps: Readonly<appOption>, prevState: Readonly<commonOption>, snapshot?: any): void {
+  componentDidUpdate(prevProps: Readonly<appOption>): void {
     if (this.props.color !== prevProps.color) return
     if (this.props.clear !== prevProps.clear) {
       this.chartIns?.getTextArr().forEach(text => {
@@ -87,7 +91,7 @@ export default class chart extends Component<appOption, commonOption> {
   render () {
     let width = '100%'
     let height = '100%'
-    const chartR = this.chartIns?.getR() || 0
+    const chartR = this.chartIns?.getR() || 0 
     const length = chartR * this.props.chartSize * 2 * this.props.plus + 100
     if (this.chartWrapper[0] && length > this.chartWrapper[0]) {
       width = length + 'px'
