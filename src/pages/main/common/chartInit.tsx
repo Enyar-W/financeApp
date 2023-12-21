@@ -35,7 +35,7 @@ export default class chart extends Component<appOption, commonOption> {
       return
     }
     if (this.props.plus !== prevProps.plus) {
-      let scale = this.chartIns?.scale(this.props.plus) || { x: 0, y: 0 }
+      let scale = this.chartIns?.scaleHandler(this.props.plus) || { x: 0, y: 0 }
       if (scale.x > 0) {
         this.scrollbarIns?.setHorizontalTrumb({
           begin: (this.width - scale.x) / 2,

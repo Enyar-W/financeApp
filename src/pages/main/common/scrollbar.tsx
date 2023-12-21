@@ -120,36 +120,30 @@ export default class scrollbar {
     this.horizontalGroup.add(this.horizontalTrumb)
   }
   moveXHandler (event: MouseEvent) {
-    // const offsetX = event.offsetX
-    console.log('move---', event.movementX)
     const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
-    const x = horizontalTrumb.x + event.movementX
+    let x = horizontalTrumb.x + event.movementX
     const end = this.width - horizontalTrumb.width
+    x = x > end ? end : x < 0 ? 0 : x
     this.horizontalTrumb.attr({
       shape: {
-        x: x > end ? end : x < 0 ? 0 : x
+        x: x
       }
     })
-    if (x <= end || x >= 0) {
-      const moveEvent = new CustomEvent('moveX', { 'detail': { movement: event.movementX } });
-      document.dispatchEvent(moveEvent);
-    }
+    const moveEvent = new CustomEvent('moveX', { 'detail': { movement: event.movementX, ratio: event.movementX / end } });
+    document.dispatchEvent(moveEvent);
   }
   moveYHandler (event: MouseEvent) {
-    // const offsetX = event.offsetX
-    console.log('move---', event.movementX)
-    const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
-    const y = horizontalTrumb.y + event.movementY
-    const end = this.height - horizontalTrumb.height
-    this.verticalTrumb.attr({
+    const verticalTrumb = this.verticalTrumb.getBoundingRect()
+    let y = verticalTrumb.y + event.movementY
+    const end = this.height - verticalTrumb.height
+    y = y > end ? end : y < 0 ? 0 : y
+    this.horizontalTrumb.attr({
       shape: {
-        y: y > end ? end : y < 0 ? 0 : y
+        y: y
       }
     })
-    if (y <= end || y >= 0) {
-      const moveEvent = new CustomEvent('moveY', { 'detail': { movement: event.movementY } });
-      document.dispatchEvent(moveEvent);
-    }
+    const moveEvent = new CustomEvent('moveY', { 'detail': { movement: event.movementY, ratio: event.movementY / end } });
+    document.dispatchEvent(moveEvent);
   }
   getHorizontalGroup () {
     return this.horizontalGroup
@@ -158,6 +152,7 @@ export default class scrollbar {
     return this.verticalGroup
   }
   setHorizontalTrumb (params: trumbOption) {
+    console.log('truck width: ', this.width, 'trumb width: ', params.length)
     this.horizontalTrumb.attr({
       shape: {
         x: params.begin,

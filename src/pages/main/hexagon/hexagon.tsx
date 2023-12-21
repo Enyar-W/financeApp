@@ -12,6 +12,11 @@ export default class hexagon {
   centerX: number = 0
   centerY: number = 0
   r: number = 0
+  plus = 1
+  scale = {
+    x: 0,
+    y: 0
+  }
   props
   constructor (props: chartOption) {
     this.centerX = props.width / 2
@@ -22,8 +27,6 @@ export default class hexagon {
     this.r = this.centerY / chartSize < 20 ? 20 : this.centerY / chartSize
 
     this.chartGroup = new Group({
-      x: 0,
-      y: 0,
       originX: this.centerX,
       originY: this.centerY,
       scaleX: 1,
@@ -40,6 +43,7 @@ export default class hexagon {
     this.chartGroup.add(this.shapeGroup)
     this.chartGroup.add(this.valueGroup)
     this.chartGroup.add(this.lineGroup)
+    console.log('groupWidth: ', this.lineGroup.getBoundingRect().width, 'width:', this.props.width)
   }
 
   renderShapeAndValue () { // 六边形、文本
@@ -222,9 +226,9 @@ export default class hexagon {
     return this.r
   }
 
-  scale (plus: number): {x : number, y: number} {
+  scaleHandler (plus: number): {x : number, y: number} {
+    this.plus = plus
     const group = this.chartGroup.getBoundingRect()
-
     const groupX = group?.x || 0
     const groupY = group?.y || 0
     const groupWidth = group?.width || 0
@@ -235,31 +239,36 @@ export default class hexagon {
       originX: groupX + groupWidth / 2,
       originY: groupY + groupHeight / 2,
     })
-    const scale = {
-      x: 0,
-      y: 0
-    }
-    const length = this.r * this.props.chartSize * 2 * plus
+    
+    const length = groupWidth * plus
+    console.log('groupWidth: ', groupWidth, 'length: ', groupWidth * plus)
     if (length > this.props.width) {
-      scale.x = this.props.width * this.props.width / length
+      this.scale.x = this.props.width * this.props.width / length // 横向滚动条滑块的长度
     }
     if (length > this.props.height) {
-      scale.y = this.props.height * this.props.height / length
+      this.scale.y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
     }
-    return scale
+    return this.scale
   }
   moveXHandler (e: MouseEvent) {
-    const { movement } = e.detail
-    console.log('moveXHandler', e.detail)
+    const { movement, ratio } = e.detail
+    const group = this.chartGroup.getBoundingRect()
+    const length = group.width * this.plus
+    const begin = this.centerX - (length - this.props.width) / 2
+    const end = this.centerX + (length - this.props.width) / 2
+    const x = this.chartGroup.originX + ratio * (length - this.props.width)
     this.chartGroup.attr({
-      originX: this.chartGroup.originX + movement
+      originX: x > end ? end : x < begin ? begin : x
     })
   }
   moveYHandler (e: MouseEvent) {
-    const { movement } = e.detail
-    console.log('moveXHandler', e.detail)
+    const { movement, ratio } = e.detail
+    const length = this.props.height * this.props.height / this.scale.y - this.props.height
+    const begin = this.centerY - length / 2
+    const end = this.centerY + length / 2
+    const y = this.chartGroup.originY + ratio * length
     this.chartGroup.attr({
-      originY: this.chartGroup.originY + movement
+      originY: y > end ? end : y < begin ? begin : y
     })
   }
 }
