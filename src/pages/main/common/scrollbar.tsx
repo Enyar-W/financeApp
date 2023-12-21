@@ -137,7 +137,7 @@ export default class scrollbar {
     let y = verticalTrumb.y + event.movementY
     const end = this.height - verticalTrumb.height
     y = y > end ? end : y < 0 ? 0 : y
-    this.horizontalTrumb.attr({
+    this.verticalTrumb.attr({
       shape: {
         y: y
       }
