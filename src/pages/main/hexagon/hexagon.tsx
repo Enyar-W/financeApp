@@ -18,7 +18,7 @@ export default class hexagon {
     y: 0
   }
   props
-  constructor (props: chartOption) {
+  constructor(props: chartOption) {
     this.centerX = props.width / 2
     this.centerY = props.height / 2
     this.props = props
@@ -37,18 +37,18 @@ export default class hexagon {
     document.addEventListener('moveY', this.moveYHandler.bind(this))
   }
 
-  init () {
-    this.renderShapeAndValue()
+  init() {
     this.renderLine()
+    this.renderShapeAndValue()
     this.chartGroup.add(this.shapeGroup)
     this.chartGroup.add(this.valueGroup)
     this.chartGroup.add(this.lineGroup)
     console.log('groupWidth: ', this.lineGroup.getBoundingRect().width, 'width:', this.props.width)
   }
 
-  renderShapeAndValue () { // 六边形、文本
+  renderShapeAndValue() { // 六边形、文本
     const radian = 2 * Math.PI / 360 * 60
-    const {chartSize } = this.props
+    const { chartSize } = this.props
     let value = this.props.beginValue
     for (let i = 0; i < chartSize; i++) {
       const circleR = (i + 1) * this.r
@@ -63,7 +63,7 @@ export default class hexagon {
               [this.centerX + circleR * Math.cos(radian), this.centerY + circleR * Math.sin(radian)],
               [this.centerX - circleR * Math.cos(radian), this.centerY + circleR * Math.sin(radian)],
               [this.centerX - circleR, this.centerY]
-            ] 
+            ]
           },
           style: {
             fill: 'none',
@@ -102,6 +102,7 @@ export default class hexagon {
           offsetY = -((valueR - valueR / num * ratio) * Math.sin(2 * Math.PI / 360 * 60))
         }
         const text = new Text({
+          z: 100,
           x: this.centerX + offsetX,
           y: this.centerY - offsetY,
           style: {
@@ -117,7 +118,7 @@ export default class hexagon {
           const color = this.props.getBg()
           text.attr({
             style: {
-              backgroundColor: color
+              backgroundColor: text.style.backgroundColor ? '' : color
             }
           })
         })
@@ -126,31 +127,31 @@ export default class hexagon {
     }
   }
 
-  renderLine () {
+  renderLine() {
     for (let i = 0; i < 6; i++) {
-     this.lineArr1[i] = new Line({
-        style:{
+      this.lineArr1[i] = new Line({
+        style: {
           stroke: i % 2 === 0 ? '#ff0000' : '#0000ff',
         },
-        shape:{
-          x1 : this.centerX,
-          y1 : this.centerY,
-          x2 : this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 60 * i),
-          y2 : this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 60 * i)
+        shape: {
+          x1: this.centerX,
+          y1: this.centerY,
+          x2: this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 60 * i),
+          y2: this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 60 * i)
         }
       })
       this.lineGroup.add(this.lineArr1[i])
-  
+
       this.lineArr2[i] = new Line({
-        style:{
+        style: {
           stroke: '#999999',
           lineDash: [3, 1]
         },
-        shape:{
-          x1 : this.centerX,
-          y1 : this.centerY,
-          x2 : this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * (30 + (i * 60))),
-          y2 : this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)))
+        shape: {
+          x1: this.centerX,
+          y1: this.centerY,
+          x2: this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * (30 + (i * 60))),
+          y2: this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)))
         }
       })
       this.lineGroup.add(this.lineArr2[i])
@@ -167,8 +168,8 @@ export default class hexagon {
         stroke: '#ff0000'
       }
     })
-  
-    
+
+
     const handler = this.moveHandler.bind(this)
     this.block.on('mousedown', () => {
       window.addEventListener('mousemove', handler)
@@ -176,14 +177,14 @@ export default class hexagon {
         window.removeEventListener('mousemove', handler, false)
       })
     })
-  
+
     this.block.on('mouseup', () => {
       window.removeEventListener('mousemove', handler, false)
     })
-    
+
     this.lineGroup.add(this.block)
   }
-  moveHandler (event: MouseEvent) {
+  moveHandler(event: MouseEvent) {
     const x = event.offsetX - this.centerX;
     const y = event.offsetY - this.centerY;
     const angle = Math.atan2(y, x)
@@ -191,42 +192,42 @@ export default class hexagon {
     this.rerenderLine(angle, length)
   }
 
-  rerenderLine (angle: number, length: number) {
+  rerenderLine(angle: number, length: number) {
     this.lineArr1.forEach((line, i) => {
       line.attr({
         shape: {
-          x2 : this.centerX + length * Math.cos(2 * Math.PI / 360 * 60 * i - angle),
-          y2 : this.centerY - length * Math.sin(2 * Math.PI / 360 * 60 * i - angle)
+          x2: this.centerX + length * Math.cos(2 * Math.PI / 360 * 60 * i - angle),
+          y2: this.centerY - length * Math.sin(2 * Math.PI / 360 * 60 * i - angle)
         }
       })
     })
     this.lineArr2.forEach((line, i) => {
       line.attr({
         shape: {
-          x2 : this.centerX + length * Math.cos(2 * Math.PI / 360 * (30 + (i * 60)) - angle),
-          y2 : this.centerY - length * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)) - angle)
+          x2: this.centerX + length * Math.cos(2 * Math.PI / 360 * (30 + (i * 60)) - angle),
+          y2: this.centerY - length * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)) - angle)
         }
       })
     })
     this.block.attr({
       shape: {
-        x : this.centerX + length * Math.cos(-angle),
-        y : this.centerY - length * Math.sin(-angle)
+        x: this.centerX + length * Math.cos(-angle),
+        y: this.centerY - length * Math.sin(-angle)
       }
     })
   }
 
-  getChartGroup () {
+  getChartGroup() {
     return this.chartGroup
   }
-  getTextArr () {
+  getTextArr() {
     return this.valueArr
   }
-  getR () {
+  getR() {
     return this.r
   }
 
-  scaleHandler (plus: number): {x : number, y: number} {
+  scaleHandler(plus: number): { x: number, y: number } {
     this.plus = plus
     const group = this.chartGroup.getBoundingRect()
     const groupX = group?.x || 0
@@ -239,18 +240,22 @@ export default class hexagon {
       originX: groupX + groupWidth / 2,
       originY: groupY + groupHeight / 2,
     })
-    
+
     const length = groupWidth * plus
     console.log('groupWidth: ', groupWidth, 'length: ', groupWidth * plus)
     if (length > this.props.width) {
       this.scale.x = this.props.width * this.props.width / length // 横向滚动条滑块的长度
+    } else {
+      this.scale.x = 0
     }
     if (length > this.props.height) {
       this.scale.y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
+    } else {
+      this.scale.y = 0
     }
     return this.scale
   }
-  moveXHandler (e: MouseEvent) {
+  moveXHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
     const group = this.chartGroup.getBoundingRect()
     const length = group.width * this.plus + 250 - this.props.width
@@ -261,9 +266,9 @@ export default class hexagon {
       originX: x > end ? end : x < begin ? begin : x
     })
   }
-  moveYHandler (e: MouseEvent) {
+  moveYHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const length = this.props.height * this.props.height / this.scale.y - this.props.height
+    const length = this.props.height * this.props.height / this.scale.y + 100 - this.props.height
     const begin = this.centerY - length / 2
     const end = this.centerY + length / 2
     const y = this.chartGroup.originY + ratio * length

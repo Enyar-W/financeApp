@@ -14,7 +14,7 @@ export default class chart extends Component<appOption, commonOption> {
   width: number = 0
   height: number = 0
   chartWrapper: [number, number] = [0, 0]
-  componentDidMount () {
+  componentDidMount() {
     this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
     this.width = this.zr.getWidth();
     this.height = this.zr.getHeight();
@@ -42,6 +42,8 @@ export default class chart extends Component<appOption, commonOption> {
           length: scale.x
         })
         this.scrollbarIns?.getHorizontalGroup() && this.zr?.add(this.scrollbarIns?.getHorizontalGroup())
+      } else {
+        this.scrollbarIns?.getHorizontalGroup() && this.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
       }
       if (scale.y > 0) {
         this.scrollbarIns?.setVerticalTrumb({
@@ -49,11 +51,16 @@ export default class chart extends Component<appOption, commonOption> {
           length: scale.y
         })
         this.scrollbarIns?.getVerticalGroup() && this.zr?.add(this.scrollbarIns?.getVerticalGroup())
+      } else {
+        this.scrollbarIns?.getVerticalGroup() && this.zr?.remove(this.scrollbarIns?.getVerticalGroup())
       }
       return
     }
+    this.zr?.clear()
+    this.scrollbarRender()
+    this.getChart()
   }
-  scrollbarRender () {
+  scrollbarRender() {
     this.scrollbarIns = new scrollbar({
       width: this.width,
       height: this.height,
@@ -62,7 +69,7 @@ export default class chart extends Component<appOption, commonOption> {
       ratioY: 1
     })
   }
-  getChart () {
+  getChart() {
     switch (this.props.currentChartType) {
       case 'wheel24':
         this.zr?.add(this.wheel24Render({
@@ -88,10 +95,10 @@ export default class chart extends Component<appOption, commonOption> {
         this.zr?.add(this.chartIns?.getChartGroup())
     }
   }
-  wheel24Render ({ width, height, beginValue, step = 1, chartSize = 5 }: chartOption) {
+  wheel24Render({ width, height, beginValue, step = 1, chartSize = 5 }: chartOption) {
     return wheel24({ width, height, beginValue, step, chartSize })
   }
-  render () {
+  render() {
     return <div id="chart" style={{ width: '100%', height: '100%' }}></div>
   }
 }
