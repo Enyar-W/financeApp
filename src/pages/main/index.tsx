@@ -5,7 +5,7 @@ import Chart from "./common/chartInit";
 import squal9 from "./squal/squal";
 import master from "./master/master"
 class Main extends Component<appOption> {
-  squalRender () {
+  squalRender() {
     const squal9Ins = squal9({
       beginValue: this.props.beginValue,
       step: this.props.step,
@@ -14,7 +14,7 @@ class Main extends Component<appOption> {
     return squal9Ins
   }
 
-  masterRender () {
+  masterRender() {
     const masterIns = master({
       beginValue: this.props.beginValue,
       step: this.props.step,
@@ -23,7 +23,7 @@ class Main extends Component<appOption> {
     return masterIns
   }
 
-  render () {
+  render() {
     if (['squal9'].includes(this.props.currentChartType)) {
       return (
         <div className="content">
@@ -47,6 +47,7 @@ class Main extends Component<appOption> {
             plus={this.props.plus}
             color={this.props.color}
             clear={this.props.clear}
+            fontSize={this.props.fontSize}
           ></Chart>
         </div>
       )

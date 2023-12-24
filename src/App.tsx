@@ -11,6 +11,7 @@ function App() {
   const [plus, setPlus] = useState(1)
   const [color, setColor] = useState('#0080FF')
   const [clear, setClear] = useState(true)
+  const [fontSize, setFontSize] = useState(12)
   return (
     <div className="app">
       <Header
@@ -28,8 +29,10 @@ function App() {
         setColor={setColor}
         clear={clear}
         setClear={setClear}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
       ></Header>
-      <Main currentChartType={currentChartType} step={step} beginValue={beginValue} chartSize={chartSize} plus={plus} color={color} clear={clear}></Main>
+      <Main currentChartType={currentChartType} step={step} beginValue={beginValue} chartSize={chartSize} plus={plus} color={color} clear={clear} fontSize={fontSize}></Main>
     </div>
   )
 }

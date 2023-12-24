@@ -1,6 +1,6 @@
 import './index.css'
 
-export default function Header (params: headerOption) {
+export default function Header(params: headerOption) {
   return (
     <div className="head">
       <div className="chartTabs">
@@ -30,15 +30,19 @@ export default function Header (params: headerOption) {
       <div className="settingTabs">
         <div className="tab">
           <span className='label'>Begin Value</span>
-          <input type="number" value={params.beginValue} onChange={(e) => params.setBeginValue(Number(e.target.value))} min={1} className='val'/>
+          <input type="number" value={params.beginValue} onChange={(e) => params.setBeginValue(Number(e.target.value))} min={1} className='val' />
         </div>
         <div className="tab">
           <span className='label'>Step</span>
-          <input type="number" value={params.step} onChange={(e) => params.setStep(Number(e.target.value))} min={1} className='val'/>
+          <input type="number" value={params.step} onChange={(e) => params.setStep(Number(e.target.value))} min={1} className='val' />
         </div>
         <div className="tab">
           <span className='label'>Chart Size</span>
-          <input type="number" value={params.chartSize} onChange={(e) => params.setChartSize(Number(e.target.value))} min={1} className='val'/>
+          <input type="number" value={params.chartSize} onChange={(e) => params.setChartSize(Number(e.target.value))} min={1} className='val' />
+        </div>
+        <div className="tab">
+          <span className='label'>Font Size</span>
+          <input type="number" value={params.fontSize} onChange={(e) => params.setFontSize(Number(e.target.value))} min={1} className='val' />
         </div>
       </div>
       <div className="magnifyTabs">
@@ -50,24 +54,24 @@ export default function Header (params: headerOption) {
         </div>
       </div>
       <div className="colorTabs">
-        <div className={params.color === '#808080' ? 'tab active' : 'tab'} style={{background: '#808080'}}  onClick={() => params.setColor('#808080')}></div>
-        <div className={params.color === '#800000' ? 'tab active' : 'tab'} style={{background: '#800000'}}  onClick={() => params.setColor('#800000')}></div>
-        <div className={params.color === '#FF0000' ? 'tab active' : 'tab'} style={{background: '#FF0000'}}  onClick={() => params.setColor('#FF0000')}></div>
-        <div className={params.color === '#FFFF00' ? 'tab active' : 'tab'} style={{background: '#FFFF00'}}  onClick={() => params.setColor('#FFFF00')}></div>
-        <div className={params.color === '#008000' ? 'tab active' : 'tab'} style={{background: '#008000'}}  onClick={() => params.setColor('#008000')}></div>
-        <div className={params.color === '#80FF00' ? 'tab active' : 'tab'} style={{background: '#80FF00'}}  onClick={() => params.setColor('#80FF00')}></div>
-        <div className={params.color === '#008080' ? 'tab active' : 'tab'} style={{background: '#008080'}}  onClick={() => params.setColor('#008080')}></div>
-        <div className={params.color === '#00FFFF' ? 'tab active' : 'tab'} style={{background: '#00FFFF'}}  onClick={() => params.setColor('#00FFFF')}></div>
-        <div className={params.color === '#0000FF' ? 'tab active' : 'tab'} style={{background: '#0000FF'}}  onClick={() => params.setColor('#0000FF')}></div>
-        <div className={params.color === '#800080' ? 'tab active' : 'tab'} style={{background: '#800080'}}  onClick={() => params.setColor('#800080')}></div>
-        <div className={params.color === '#808000' ? 'tab active' : 'tab'} style={{background: '#808000'}}  onClick={() => params.setColor('#808000')}></div>
-        <div className={params.color === '#80FF80' ? 'tab active' : 'tab'} style={{background: '#80FF80'}}  onClick={() => params.setColor('#80FF80')}></div>
-        <div className={params.color === '#0080FF' ? 'tab active' : 'tab'} style={{background: '#0080FF'}}  onClick={() => params.setColor('#0080FF')}></div>
-        <div className={params.color === '#004080' ? 'tab active' : 'tab'} style={{background: '#004080'}}  onClick={() => params.setColor('#004080')}></div>
-        <div className={params.color === '#8080FF' ? 'tab active' : 'tab'} style={{background: '#8080FF'}}  onClick={() => params.setColor('#8080FF')}></div>
-        <div className={params.color === '#FF0080' ? 'tab active' : 'tab'} style={{background: '#FF0080'}}  onClick={() => params.setColor('#FF0080')}></div>
-        <div className={params.color === '#804040' ? 'tab active' : 'tab'} style={{background: '#804040'}}  onClick={() => params.setColor('#804040')}></div>
-        <div className={params.color === '#FF8040' ? 'tab active' : 'tab'} style={{background: '#FF8040'}}  onClick={() => params.setColor('#FF8040')}></div>
+        <div className={params.color === '#808080' ? 'tab active' : 'tab'} style={{ background: '#808080' }} onClick={() => params.setColor('#808080')}></div>
+        <div className={params.color === '#800000' ? 'tab active' : 'tab'} style={{ background: '#800000' }} onClick={() => params.setColor('#800000')}></div>
+        <div className={params.color === '#FF0000' ? 'tab active' : 'tab'} style={{ background: '#FF0000' }} onClick={() => params.setColor('#FF0000')}></div>
+        <div className={params.color === '#FFFF00' ? 'tab active' : 'tab'} style={{ background: '#FFFF00' }} onClick={() => params.setColor('#FFFF00')}></div>
+        <div className={params.color === '#008000' ? 'tab active' : 'tab'} style={{ background: '#008000' }} onClick={() => params.setColor('#008000')}></div>
+        <div className={params.color === '#80FF00' ? 'tab active' : 'tab'} style={{ background: '#80FF00' }} onClick={() => params.setColor('#80FF00')}></div>
+        <div className={params.color === '#008080' ? 'tab active' : 'tab'} style={{ background: '#008080' }} onClick={() => params.setColor('#008080')}></div>
+        <div className={params.color === '#00FFFF' ? 'tab active' : 'tab'} style={{ background: '#00FFFF' }} onClick={() => params.setColor('#00FFFF')}></div>
+        <div className={params.color === '#0000FF' ? 'tab active' : 'tab'} style={{ background: '#0000FF' }} onClick={() => params.setColor('#0000FF')}></div>
+        <div className={params.color === '#800080' ? 'tab active' : 'tab'} style={{ background: '#800080' }} onClick={() => params.setColor('#800080')}></div>
+        <div className={params.color === '#808000' ? 'tab active' : 'tab'} style={{ background: '#808000' }} onClick={() => params.setColor('#808000')}></div>
+        <div className={params.color === '#80FF80' ? 'tab active' : 'tab'} style={{ background: '#80FF80' }} onClick={() => params.setColor('#80FF80')}></div>
+        <div className={params.color === '#0080FF' ? 'tab active' : 'tab'} style={{ background: '#0080FF' }} onClick={() => params.setColor('#0080FF')}></div>
+        <div className={params.color === '#004080' ? 'tab active' : 'tab'} style={{ background: '#004080' }} onClick={() => params.setColor('#004080')}></div>
+        <div className={params.color === '#8080FF' ? 'tab active' : 'tab'} style={{ background: '#8080FF' }} onClick={() => params.setColor('#8080FF')}></div>
+        <div className={params.color === '#FF0080' ? 'tab active' : 'tab'} style={{ background: '#FF0080' }} onClick={() => params.setColor('#FF0080')}></div>
+        <div className={params.color === '#804040' ? 'tab active' : 'tab'} style={{ background: '#804040' }} onClick={() => params.setColor('#804040')}></div>
+        <div className={params.color === '#FF8040' ? 'tab active' : 'tab'} style={{ background: '#FF8040' }} onClick={() => params.setColor('#FF8040')}></div>
         <div className="tab text" onClick={() => params.setClear(!params.clear)}>清除画布</div>
       </div>
     </div>

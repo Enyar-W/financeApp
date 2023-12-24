@@ -43,7 +43,6 @@ export default class hexagon {
     this.chartGroup.add(this.shapeGroup)
     this.chartGroup.add(this.valueGroup)
     this.chartGroup.add(this.lineGroup)
-    console.log('groupWidth: ', this.lineGroup.getBoundingRect().width, 'width:', this.props.width)
   }
 
   renderShapeAndValue() { // 六边形、文本
@@ -109,7 +108,8 @@ export default class hexagon {
             text: '' + value,
             align: 'center',
             verticalAlign: 'middle',
-            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : '#333333'
+            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : '#333333',
+            fontSize: this.props.getFontSize()
           }
         })
         this.valueGroup.add(text)
@@ -157,6 +157,7 @@ export default class hexagon {
       this.lineGroup.add(this.lineArr2[i])
     }
     this.block = new Rect({
+      z: 1000,
       shape: {
         x: this.centerX + this.r * this.props.chartSize - 5,
         y: this.centerY - 4,
@@ -171,6 +172,15 @@ export default class hexagon {
 
 
     const handler = this.moveHandler.bind(this)
+    this.lineArr1[0].on('mousedown', () => {
+      window.addEventListener('mousemove', handler)
+      window.addEventListener('mouseup', () => {
+        window.removeEventListener('mousemove', handler, false)
+      })
+    })
+    this.lineArr1[0].on('mouseup', () => {
+      window.removeEventListener('mousemove', handler, false)
+    })
     this.block.on('mousedown', () => {
       window.addEventListener('mousemove', handler)
       window.addEventListener('mouseup', () => {
@@ -193,6 +203,7 @@ export default class hexagon {
   }
 
   rerenderLine(angle: number, length: number) {
+    console.log('angle', angle)
     this.lineArr1.forEach((line, i) => {
       line.attr({
         shape: {
@@ -209,16 +220,25 @@ export default class hexagon {
         }
       })
     })
+    let offsetX = 0
+    let offsetY = 0
+    if (angle < -1.5) {
+      offsetX = -5
+      offsetY = -4
+    }
     this.block.attr({
       shape: {
-        x: this.centerX + length * Math.cos(-angle),
-        y: this.centerY - length * Math.sin(-angle)
+        x: this.centerX + length * Math.cos(-angle) + offsetX,
+        y: this.centerY - length * Math.sin(-angle) + offsetY
       }
     })
   }
 
   getChartGroup() {
     return this.chartGroup
+  }
+  getTextGroup() {
+    return this.valueGroup
   }
   getTextArr() {
     return this.valueArr
@@ -242,7 +262,6 @@ export default class hexagon {
     })
 
     const length = groupWidth * plus
-    console.log('groupWidth: ', groupWidth, 'length: ', groupWidth * plus)
     if (length > this.props.width) {
       this.scale.x = this.props.width * this.props.width / length // 横向滚动条滑块的长度
     } else {

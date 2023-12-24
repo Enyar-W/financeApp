@@ -20,7 +20,9 @@ interface headerOption {
   color: string,
   setColor: function,
   clear: boolean,
-  setClear: function
+  setClear: function,
+  fontSize: number,
+  setFontSize: function
 }
 
 interface appOption {
@@ -30,7 +32,8 @@ interface appOption {
   chartSize: number,
   plus: number,
   color: string,
-  clear: boolean
+  clear: boolean,
+  fontSize: number,
 }
 
 interface commonOption {
@@ -40,15 +43,17 @@ interface commonOption {
   row?: number,
   column?: number,
   plus?: number,
-  clear?: boolean
+  clear?: boolean,
+  fontSize?: number,
 }
 
-interface chartOption extends commonOption{
+interface chartOption extends commonOption {
   zr: ZRenderType
   width: number,
   height: number,
   getBg?: function,
-  getPlus?: function
+  getPlus?: function,
+  getFontSize?: function
 }
 
 interface settingOption extends commonOption {

@@ -15,12 +15,10 @@ export default class chart extends Component<appOption, commonOption> {
   height: number = 0
   chartWrapper: [number, number] = [0, 0]
   componentDidMount() {
-    this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
-    this.width = this.zr.getWidth();
-    this.height = this.zr.getHeight();
-    this.chartWrapper = [this.width, this.height]
-    this.scrollbarRender()
-    this.getChart()
+    this.init()
+    window.addEventListener('resize', () => {
+      this.init()
+    })
   }
   componentDidUpdate(prevProps: Readonly<appOption>): void {
     if (this.props.color !== prevProps.color) return
@@ -56,9 +54,27 @@ export default class chart extends Component<appOption, commonOption> {
       }
       return
     }
+    if (this.props.fontSize !== prevProps.fontSize) {
+      this.chartIns?.getTextArr().forEach(text => {
+        text.attr({
+          style: {
+            fontSize: this.props.fontSize || 12
+          }
+        })
+      })
+      return
+    }
     this.zr?.clear()
-    this.scrollbarRender()
     this.getChart()
+    this.scrollbarRender()
+  }
+  init() {
+    this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
+    this.width = this.zr.getWidth();
+    this.height = this.zr.getHeight();
+    this.chartWrapper = [this.width, this.height]
+    this.getChart()
+    this.scrollbarRender()
   }
   scrollbarRender() {
     this.scrollbarIns = new scrollbar({
@@ -68,6 +84,25 @@ export default class chart extends Component<appOption, commonOption> {
       ratioX: 1,
       ratioY: 1
     })
+    const chart = this.chartIns?.getChartGroup().getBoundingRect()
+    const width = chart?.width || 0
+    const height = chart?.height || 0
+    if (width > this.width) {
+      const x = this.width * this.width / width // 横向滚动条滑块的长度
+      this.scrollbarIns?.setHorizontalTrumb({
+        begin: (this.width - x) / 2,
+        length: x
+      })
+      this.scrollbarIns?.getHorizontalGroup() && this.zr?.add(this.scrollbarIns?.getHorizontalGroup())
+    }
+    if (height > this.height) {
+      const y = this.height * this.height / height // 纵向滚动条滑块的长度
+      this.scrollbarIns?.setVerticalTrumb({
+        begin: (this.height - y) / 2,
+        length: y
+      })
+      this.scrollbarIns?.getVerticalGroup() && this.zr?.add(this.scrollbarIns?.getVerticalGroup())
+    }
   }
   getChart() {
     switch (this.props.currentChartType) {
@@ -90,7 +125,8 @@ export default class chart extends Component<appOption, commonOption> {
           chartSize: this.props.chartSize,
           clear: this.props.clear,
           getBg: () => this.props.color,
-          getPlus: () => this.props.plus
+          getPlus: () => this.props.plus,
+          getFontSize: () => this.props.fontSize
         })
         this.zr?.add(this.chartIns?.getChartGroup())
     }
