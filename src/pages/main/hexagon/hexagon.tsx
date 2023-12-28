@@ -27,6 +27,8 @@ export default class hexagon {
     this.r = this.centerY / chartSize < 20 ? 20 : this.centerY / chartSize
 
     this.chartGroup = new Group({
+      x: 0,
+      y: 0,
       originX: this.centerX,
       originY: this.centerY,
       scaleX: 1,
@@ -276,23 +278,25 @@ export default class hexagon {
   }
   moveXHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const group = this.chartGroup.getBoundingRect()
-    const length = group.width * this.plus + 250 - this.props.width
-    const begin = this.centerX - length / 2
-    const end = this.centerX + length / 2
-    const x = this.chartGroup.originX + ratio * length
+    // const group = this.chartGroup.getBoundingRect()
+    // const length = group.width * this.plus - this.props.width + 50
+    const length = this.props.width * this.props.width / this.scale.x - this.props.width + 100
+    const begin = - length / 2
+    const end = length / 2
+    const x = this.chartGroup.x - ratio * length
     this.chartGroup.attr({
-      originX: x > end ? end : x < begin ? begin : x
+      x: x > end ? end : x < begin ? begin : x
     })
   }
   moveYHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const length = this.props.height * this.props.height / this.scale.y + 100 - this.props.height
-    const begin = this.centerY - length / 2
-    const end = this.centerY + length / 2
-    const y = this.chartGroup.originY + ratio * length
+    const length = this.props.height * this.props.height / this.scale.y - this.props.height + 50
+
+    const begin = - length / 2
+    const end = length / 2
+    const y = this.chartGroup.y - ratio * length
     this.chartGroup.attr({
-      originY: y > end ? end : y < begin ? begin : y
+      y: y > end ? end : y < begin ? begin : y
     })
   }
 }

@@ -33,25 +33,7 @@ export default class chart extends Component<appOption, commonOption> {
       return
     }
     if (this.props.plus !== prevProps.plus) {
-      let scale = this.chartIns?.scaleHandler(this.props.plus) || { x: 0, y: 0 }
-      if (scale.x > 0) {
-        this.scrollbarIns?.setHorizontalTrumb({
-          begin: (this.width - scale.x) / 2,
-          length: scale.x
-        })
-        this.scrollbarIns?.getHorizontalGroup() && this.zr?.add(this.scrollbarIns?.getHorizontalGroup())
-      } else {
-        this.scrollbarIns?.getHorizontalGroup() && this.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
-      }
-      if (scale.y > 0) {
-        this.scrollbarIns?.setVerticalTrumb({
-          begin: (this.height - scale.y) / 2,
-          length: scale.y
-        })
-        this.scrollbarIns?.getVerticalGroup() && this.zr?.add(this.scrollbarIns?.getVerticalGroup())
-      } else {
-        this.scrollbarIns?.getVerticalGroup() && this.zr?.remove(this.scrollbarIns?.getVerticalGroup())
-      }
+      this.scaleHandler()
       return
     }
     if (this.props.fontSize !== prevProps.fontSize) {
@@ -76,6 +58,7 @@ export default class chart extends Component<appOption, commonOption> {
     this.getChart()
     this.scrollbarRender()
   }
+
   scrollbarRender() {
     this.scrollbarIns = new scrollbar({
       width: this.width,
@@ -84,24 +67,46 @@ export default class chart extends Component<appOption, commonOption> {
       ratioX: 1,
       ratioY: 1
     })
-    const chart = this.chartIns?.getChartGroup().getBoundingRect()
-    const width = chart?.width || 0
-    const height = chart?.height || 0
-    if (width > this.width) {
-      const x = this.width * this.width / width // 横向滚动条滑块的长度
+    this.scaleHandler()
+    // const chart = this.chartIns?.getChartGroup().getBoundingRect()
+    // const width = chart?.width || 0
+    // const height = chart?.height || 0
+    // if (width > this.width) {
+    //   const x = this.width * this.width / width // 横向滚动条滑块的长度
+    //   this.scrollbarIns?.setHorizontalTrumb({
+    //     begin: (this.width - x) / 2,
+    //     length: x
+    //   })
+    //   this.scrollbarIns?.getHorizontalGroup() && this.zr?.add(this.scrollbarIns?.getHorizontalGroup())
+    // }
+    // if (height > this.height) {
+    //   const y = this.height * this.height / height // 纵向滚动条滑块的长度
+    //   this.scrollbarIns?.setVerticalTrumb({
+    //     begin: (this.height - y) / 2,
+    //     length: y
+    //   })
+    //   this.scrollbarIns?.getVerticalGroup() && this.zr?.add(this.scrollbarIns?.getVerticalGroup())
+    // }
+  }
+  scaleHandler() {
+    let scale = this.chartIns?.scaleHandler(this.props.plus) || { x: 0, y: 0 }
+    if (scale.x > 0) {
       this.scrollbarIns?.setHorizontalTrumb({
-        begin: (this.width - x) / 2,
-        length: x
+        begin: (this.width - scale.x) / 2,
+        length: scale.x
       })
       this.scrollbarIns?.getHorizontalGroup() && this.zr?.add(this.scrollbarIns?.getHorizontalGroup())
+    } else {
+      this.scrollbarIns?.getHorizontalGroup() && this.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
     }
-    if (height > this.height) {
-      const y = this.height * this.height / height // 纵向滚动条滑块的长度
+    if (scale.y > 0) {
       this.scrollbarIns?.setVerticalTrumb({
-        begin: (this.height - y) / 2,
-        length: y
+        begin: (this.height - scale.y) / 2,
+        length: scale.y
       })
       this.scrollbarIns?.getVerticalGroup() && this.zr?.add(this.scrollbarIns?.getVerticalGroup())
+    } else {
+      this.scrollbarIns?.getVerticalGroup() && this.zr?.remove(this.scrollbarIns?.getVerticalGroup())
     }
   }
   getChart() {
