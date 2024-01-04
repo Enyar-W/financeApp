@@ -111,7 +111,9 @@ export default class hexagon {
             align: 'center',
             verticalAlign: 'middle',
             fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : '#333333',
-            fontSize: this.props.getFontSize()
+            fontSize: this.props.getFontSize(),
+            borderWidth: 1,
+            padding: [2, 0, 0, 0],
           }
         })
         this.valueGroup.add(text)
@@ -120,7 +122,8 @@ export default class hexagon {
           const color = this.props.getBg()
           text.attr({
             style: {
-              backgroundColor: text.style.backgroundColor ? '' : color
+              // backgroundColor: text.style.backgroundColor ? '' : color,
+              borderColor: text.style.borderColor ? '' : color,
             }
           })
         })

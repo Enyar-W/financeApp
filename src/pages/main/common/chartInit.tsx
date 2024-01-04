@@ -46,12 +46,22 @@ export default class chart extends Component<appOption, commonOption> {
       })
       return
     }
+    if (this.props.bg !== prevProps.bg) {
+      console.log('=====', this.props.bg, this.zr);
+      // if (this.zr) {
+      //   this.zr.setBackgroundColor(this.props.bg); // 没有立即生效
+      // }
+      const el = document.getElementById('chart') || null;
+      el && (el.style.background = this.props.bg);
+      return;
+    }
     this.zr?.clear()
     this.getChart()
     this.scrollbarRender()
   }
   init() {
     this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
+    // this.zr.setBackgroundColor(this.props.bg);
     this.width = this.zr.getWidth();
     this.height = this.zr.getHeight();
     this.chartWrapper = [this.width, this.height]
@@ -140,6 +150,6 @@ export default class chart extends Component<appOption, commonOption> {
     return wheel24({ width, height, beginValue, step, chartSize })
   }
   render() {
-    return <div id="chart" style={{ width: '100%', height: '100%' }}></div>
+    return <div id="chart" style={{ width: '100%', height: '100%', background: '#C7EDCC' }}></div>
   }
 }

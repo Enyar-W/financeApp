@@ -74,6 +74,12 @@ export default function Header(params: headerOption) {
         <div className={params.color === '#FF8040' ? 'tab active' : 'tab'} style={{ background: '#FF8040' }} onClick={() => params.setColor('#FF8040')}></div>
         <div className="tab text" onClick={() => params.setClear(!params.clear)}>清除画布</div>
       </div>
+      <div className="colorTabs">
+        <div>背景色：</div>
+        <div className={params.bg === '#C7EDCC' ? 'tab active' : 'tab'} style={{ background: '#C7EDCC' }} onClick={() => params.setBg('#C7EDCC')}></div>
+        <div className={params.bg === '#FAF9DE' ? 'tab active' : 'tab'} style={{ background: '#FAF9DE' }} onClick={() => params.setBg('#FAF9DE')}></div>
+        <div className={params.bg === '#FFFFFF' ? 'tab active' : 'tab'} style={{ background: '#FFFFFF' }} onClick={() => params.setBg('#FFFFFF')}></div>
+      </div>
     </div>
   )
 }
