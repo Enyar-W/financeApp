@@ -130,6 +130,7 @@ export default class chart extends Component<appOption, commonOption> {
           step: this.props.step,
           chartSize: this.props.chartSize,
           clear: this.props.clear,
+          theme: this.props.theme,
           getBg: () => this.props.color,
           getPlus: () => this.props.plus,
           getFontSize: () => this.props.fontSize

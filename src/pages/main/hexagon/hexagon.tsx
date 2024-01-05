@@ -68,7 +68,7 @@ export default class hexagon {
         },
         style: {
           fill: 'none',
-          stroke: '#6C7073'
+          stroke: this.props.theme[1]
         }
       })
       this.shapeGroup.add(polyline)
@@ -111,7 +111,7 @@ export default class hexagon {
             text: '' + value,
             align: 'center',
             verticalAlign: 'middle',
-            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : '#6C7073',
+            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : this.props.theme[1],
             fontSize: this.props.getFontSize(),
             borderWidth: 1,
             padding: [2, 0, 0, 0],
