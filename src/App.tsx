@@ -10,7 +10,7 @@ function App() {
   const [chartSize, setChartSize] = useState(14);
   const [plus, setPlus] = useState(1)
   const [color, setColor] = useState('#0080FF')
-  const [bg, setBg] = useState('#C7EDCC')
+  const [theme, setTheme] = useState(['#C7EDCC', '#6B6B6B'])
   const [clear, setClear] = useState(true)
   const [fontSize, setFontSize] = useState(12)
   return (
@@ -32,10 +32,10 @@ function App() {
         setClear={setClear}
         fontSize={fontSize}
         setFontSize={setFontSize}
-        bg={bg}
-        setBg={setBg}
+        theme={theme}
+        setTheme={setTheme}
       ></Header>
-      <Main currentChartType={currentChartType} step={step} beginValue={beginValue} chartSize={chartSize} plus={plus} color={color} clear={clear} fontSize={fontSize} bg={bg}></Main>
+      <Main currentChartType={currentChartType} step={step} beginValue={beginValue} chartSize={chartSize} plus={plus} color={color} clear={clear} fontSize={fontSize} theme={theme}></Main>
     </div>
   )
 }

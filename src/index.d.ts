@@ -23,8 +23,8 @@ interface headerOption {
   setClear: function,
   fontSize: number,
   setFontSize: function,
-  bg: string,
-  setBg: function
+  theme: string,
+  setTheme: function
 }
 
 interface appOption {
@@ -36,7 +36,7 @@ interface appOption {
   color: string,
   clear: boolean,
   fontSize: number,
-  bg: string
+  theme: string
 }
 
 interface commonOption {

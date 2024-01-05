@@ -48,7 +48,7 @@ class Main extends Component<appOption> {
             color={this.props.color}
             clear={this.props.clear}
             fontSize={this.props.fontSize}
-            bg={this.props.bg}
+            theme={this.props.theme}
           ></Chart>
         </div>
       )

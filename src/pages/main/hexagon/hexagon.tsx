@@ -3,6 +3,7 @@ import { Group, Line, Text, Polyline, Rect } from 'zrender'
 export default class hexagon {
   chartGroup: Group
   shapeGroup: Group = new Group()
+  shapeArr: Polyline[] = []
   valueGroup: Group = new Group()
   valueArr: Text[] = []
   lineGroup: Group = new Group()
@@ -53,25 +54,25 @@ export default class hexagon {
     let value = this.props.beginValue
     for (let i = 0; i < chartSize; i++) {
       const circleR = (i + 1) * this.r
-      this.shapeGroup.add(
-        new Polyline({
-          shape: {
-            points: [
-              [this.centerX - circleR, this.centerY],
-              [this.centerX - circleR * Math.cos(radian), this.centerY - circleR * Math.sin(radian)],
-              [this.centerX + circleR * Math.cos(radian), this.centerY - circleR * Math.sin(radian)],
-              [this.centerX + circleR, this.centerY],
-              [this.centerX + circleR * Math.cos(radian), this.centerY + circleR * Math.sin(radian)],
-              [this.centerX - circleR * Math.cos(radian), this.centerY + circleR * Math.sin(radian)],
-              [this.centerX - circleR, this.centerY]
-            ]
-          },
-          style: {
-            fill: 'none',
-            stroke: '#666666'
-          }
-        })
-      )
+      const polyline = new Polyline({
+        shape: {
+          points: [
+            [this.centerX - circleR, this.centerY],
+            [this.centerX - circleR * Math.cos(radian), this.centerY - circleR * Math.sin(radian)],
+            [this.centerX + circleR * Math.cos(radian), this.centerY - circleR * Math.sin(radian)],
+            [this.centerX + circleR, this.centerY],
+            [this.centerX + circleR * Math.cos(radian), this.centerY + circleR * Math.sin(radian)],
+            [this.centerX - circleR * Math.cos(radian), this.centerY + circleR * Math.sin(radian)],
+            [this.centerX - circleR, this.centerY]
+          ]
+        },
+        style: {
+          fill: 'none',
+          stroke: '#6C7073'
+        }
+      })
+      this.shapeGroup.add(polyline)
+      this.shapeArr.push(polyline)
       const valueR = circleR - this.r / 2
       const valueNum = 6 * (i + 1)
       for (let j = 1; j <= valueNum; j++) { // 文本
@@ -110,7 +111,7 @@ export default class hexagon {
             text: '' + value,
             align: 'center',
             verticalAlign: 'middle',
-            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : '#333333',
+            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : '#6C7073',
             fontSize: this.props.getFontSize(),
             borderWidth: 1,
             padding: [2, 0, 0, 0],
@@ -122,8 +123,8 @@ export default class hexagon {
           const color = this.props.getBg()
           text.attr({
             style: {
-              // backgroundColor: text.style.backgroundColor ? '' : color,
-              borderColor: text.style.borderColor ? '' : color,
+              backgroundColor: text.style.backgroundColor ? '' : color,
+              // borderColor: text.style.borderColor ? '' : color,
             }
           })
         })
@@ -247,6 +248,9 @@ export default class hexagon {
   }
   getTextArr() {
     return this.valueArr
+  }
+  getShapeArr() {
+    return this.shapeArr
   }
   getR() {
     return this.r

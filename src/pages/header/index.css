@@ -74,6 +74,7 @@
   border-right: 1px solid #000000;
   border-bottom: 1px solid #000000;
   cursor: pointer;
+  text-align: center;
 }
 .colorTabs .tab.active {
   height: 25px;
@@ -86,4 +87,28 @@
   line-height: 22px;
   border-radius: 2px;
   background-color: #A0A0A0;
+}
+
+.themeTabs {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  justify-content: flex-end;
+}
+.themeTabs .theme {
+  width: 50px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+.themesWrapper {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 100;
+}
+.hide {
+  display: none;
 }
