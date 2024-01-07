@@ -24,7 +24,9 @@ export default class chart extends Component<appOption, commonOption> {
     })
   }
   componentDidUpdate(prevProps: Readonly<appOption>): void {
+    console.log('-------', this.props, this.props.showDate)
     if (this.props.color !== prevProps.color) return
+    // 清空标注
     if (this.props.clear !== prevProps.clear) {
       this.chartIns?.getTextArr().forEach(text => {
         text.attr({
@@ -35,10 +37,12 @@ export default class chart extends Component<appOption, commonOption> {
       })
       return
     }
+    // 缩放
     if (this.props.plus !== prevProps.plus) {
       this.scaleHandler()
       return
     }
+    // 调整字体大小
     if (this.props.fontSize !== prevProps.fontSize) {
       this.chartIns?.getTextArr().forEach(text => {
         text.attr({
@@ -49,6 +53,7 @@ export default class chart extends Component<appOption, commonOption> {
       })
       return
     }
+    // 主题色
     if (this.props.theme[0] !== prevProps.theme[0]) {
       const el = document.getElementById('chart') || null;
       el && (el.style.background = this.props.theme[0]);
@@ -68,6 +73,25 @@ export default class chart extends Component<appOption, commonOption> {
         })
       })
       return;
+    }
+    // 显示/隐藏日期
+    if (this.props.showDate !== prevProps.showDate && this.chartIns?.dateGroup) {
+      if (this.props.showDate) {
+        this.chartIns?.getTextArr().forEach(text => {
+          text.attr({
+            y: text.y - this.props.fontSize / 2
+          })
+        })
+        this.chartIns.chartGroup.add(this.chartIns.dateGroup)
+      } else {
+        this.chartIns?.getTextArr().forEach(text => {
+          text.attr({
+            y: text.y + this.props.fontSize / 2
+          })
+        })
+        this.chartIns.chartGroup.remove(this.chartIns.dateGroup)
+      }
+      return
     }
     this.zr?.clear()
     this.getChart()
@@ -136,7 +160,9 @@ export default class chart extends Component<appOption, commonOption> {
           theme: this.props.theme,
           getBg: () => this.props.color,
           getPlus: () => this.props.plus,
-          getFontSize: () => this.props.fontSize
+          getFontSize: () => this.props.fontSize,
+          showDate: this.props.showDate,
+          beginDate: this.props.beginDate
         })
         this.zr?.add(this.chartIns?.getChartGroup())
     }

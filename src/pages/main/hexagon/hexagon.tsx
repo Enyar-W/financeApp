@@ -4,8 +4,10 @@ export default class hexagon {
   chartGroup: Group
   shapeGroup: Group = new Group()
   shapeArr: Polyline[] = []
-  valueGroup: Group = new Group()
-  valueArr: Text[] = []
+  textGroup: Group = new Group()
+  textArr: Text[] = []
+  dateGroup: Group = new Group()
+  dateArr: Text[] = []
   lineGroup: Group = new Group()
   lineArr1: Line[] = []
   lineArr2: Line[] = []
@@ -23,9 +25,10 @@ export default class hexagon {
     this.centerX = props.width / 2
     this.centerY = props.height / 2
     this.props = props
-    const { chartSize } = this.props
+    // const { chartSize } = this.props
     // this.r = (this.centerY - 50 - 8) / chartSize < 20 ? 20 : (this.centerY - 50 - 8) / chartSize
-    this.r = this.centerY / chartSize < 20 ? 20 : this.centerY / chartSize
+    // this.r = this.centerY / chartSize < 20 ? 20 : this.centerY / chartSize
+    this.r = 50
 
     this.chartGroup = new Group({
       x: 0,
@@ -44,12 +47,14 @@ export default class hexagon {
     this.renderLine()
     this.renderShapeAndValue()
     this.chartGroup.add(this.shapeGroup)
-    this.chartGroup.add(this.valueGroup)
+    this.chartGroup.add(this.textGroup)
     this.chartGroup.add(this.lineGroup)
+    this.props.showDate && this.chartGroup.add(this.dateGroup)
   }
 
   renderShapeAndValue() { // 六边形、文本
     const radian = 2 * Math.PI / 360 * 60
+    const beginDate = new Date(this.props.beginDate).getTime()
     const { chartSize } = this.props
     let value = this.props.beginValue
     for (let i = 0; i < chartSize; i++) {
@@ -103,10 +108,14 @@ export default class hexagon {
           offsetX = valueR - (valueR - valueR / num * ratio) * Math.cos(2 * Math.PI / 360 * 60)
           offsetY = -((valueR - valueR / num * ratio) * Math.sin(2 * Math.PI / 360 * 60))
         }
+        const date = new Date(beginDate + (value - 1) * 24 * 60 * 60 * 1000)
+        const dateStr = (date.getMonth() + 1) + '/' + date.getDate()
+        const textGroup = new Group()
+        const offsetY1 = this.props.getFontSize() / 2
         const text = new Text({
           z: 100,
           x: this.centerX + offsetX,
-          y: this.centerY - offsetY,
+          y: this.centerY - offsetY - (this.props.showDate ? offsetY1 : 0),
           style: {
             text: '' + value,
             align: 'center',
@@ -117,11 +126,36 @@ export default class hexagon {
             padding: [2, 0, 0, 0],
           }
         })
-        this.valueGroup.add(text)
-        this.valueArr.push(text)
-        text.on('click', () => {
+        const dateEl = new Text({
+          z: 100,
+          x: this.centerX + offsetX,
+          y: this.centerY - offsetY + offsetY1,
+          style: {
+            text: '' + dateStr,
+            align: 'center',
+            verticalAlign: 'middle',
+            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : this.props.theme[1],
+            fontSize: this.props.getFontSize(),
+            borderWidth: 1,
+            padding: [2, 0, 0, 0],
+          }
+        })
+        textGroup.add(text)
+        this.textGroup.add(text)
+        this.textArr.push(text)
+        textGroup.add(dateEl)
+        this.dateGroup.add(dateEl)
+        this.dateArr.push(dateEl)
+
+        textGroup.on('click', () => {
           const color = this.props.getBg()
           text.attr({
+            style: {
+              backgroundColor: text.style.backgroundColor ? '' : color,
+              // borderColor: text.style.borderColor ? '' : color,
+            }
+          })
+          dateEl.attr({
             style: {
               backgroundColor: text.style.backgroundColor ? '' : color,
               // borderColor: text.style.borderColor ? '' : color,
@@ -134,33 +168,25 @@ export default class hexagon {
   }
 
   renderLine() {
+    let colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
     for (let i = 0; i < 6; i++) {
+      const angleX = this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 30 * i)
+      const angleY = this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 30 * i)
       this.lineArr1[i] = new Line({
         style: {
-          stroke: i % 2 === 0 ? '#ff0000' : '#0000ff',
+          stroke: colors[i],
+          lineDash: i === 2 || i === 5 ? [3, 1] : []
         },
         shape: {
-          x1: this.centerX,
-          y1: this.centerY,
-          x2: this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 60 * i),
-          y2: this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 60 * i)
-        }
+          x1: this.centerX - angleX,
+          y1: this.centerY + angleY,
+          x2: this.centerX + angleX,
+          y2: this.centerY - angleY,
+        },
+        originX: this.centerX,
+        originY: this.centerY
       })
       this.lineGroup.add(this.lineArr1[i])
-
-      this.lineArr2[i] = new Line({
-        style: {
-          stroke: '#999999',
-          lineDash: [3, 1]
-        },
-        shape: {
-          x1: this.centerX,
-          y1: this.centerY,
-          x2: this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * (30 + (i * 60))),
-          y2: this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)))
-        }
-      })
-      this.lineGroup.add(this.lineArr2[i])
     }
     this.block = new Rect({
       z: 1000,
@@ -175,8 +201,6 @@ export default class hexagon {
         stroke: '#ff0000'
       }
     })
-
-
     const handler = this.moveHandler.bind(this)
     this.lineArr1[0].on('mousedown', () => {
       window.addEventListener('mousemove', handler)
@@ -205,38 +229,14 @@ export default class hexagon {
     const y = event.offsetY - this.centerY;
     const angle = Math.atan2(y, x)
     const length = Math.sqrt(x * x + y * y)
-    this.rerenderLine(angle, length)
+    this.rotateLines(angle, length)
   }
 
-  rerenderLine(angle: number, length: number) {
-    console.log('angle', angle)
-    this.lineArr1.forEach((line, i) => {
-      line.attr({
-        shape: {
-          x2: this.centerX + length * Math.cos(2 * Math.PI / 360 * 60 * i - angle),
-          y2: this.centerY - length * Math.sin(2 * Math.PI / 360 * 60 * i - angle)
-        }
-      })
-    })
-    this.lineArr2.forEach((line, i) => {
-      line.attr({
-        shape: {
-          x2: this.centerX + length * Math.cos(2 * Math.PI / 360 * (30 + (i * 60)) - angle),
-          y2: this.centerY - length * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)) - angle)
-        }
-      })
-    })
-    let offsetX = 0
-    let offsetY = 0
-    if (angle < -1.5) {
-      offsetX = -5
-      offsetY = -4
-    }
-    this.block.attr({
-      shape: {
-        x: this.centerX + length * Math.cos(-angle) + offsetX,
-        y: this.centerY - length * Math.sin(-angle) + offsetY
-      }
+  rotateLines(angle: number, length: number) {
+    this.lineGroup.attr({
+      originX: this.centerX,
+      originY: this.centerY,
+      rotation: -angle
     })
   }
 
@@ -244,10 +244,10 @@ export default class hexagon {
     return this.chartGroup
   }
   getTextGroup() {
-    return this.valueGroup
+    return this.textGroup
   }
   getTextArr() {
-    return this.valueArr
+    return this.textArr
   }
   getShapeArr() {
     return this.shapeArr

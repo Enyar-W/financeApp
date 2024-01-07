@@ -4,7 +4,7 @@ import { Component } from "react";
 
 export default class Header extends Component<headerOption> {
   params
-  constructor (props: headerOption) {
+  constructor(props: headerOption) {
     super(props)
     this.params = props
     this.state = {
@@ -20,7 +20,7 @@ export default class Header extends Component<headerOption> {
       })
     })
   }
-  chartTabsRender (params: headerOption) {
+  chartTabsRender(params: headerOption) {
     return (
       <div className="chartTabs">
         <div className={params.currentChartType === 'wheel24' ? 'tab active' : 'tab'} onClick={() => params.setCurrentChartType('wheel24')}>
@@ -48,7 +48,16 @@ export default class Header extends Component<headerOption> {
       </div>
     )
   }
-  settingTabsRender (params: headerOption) {
+  toolsTabsRender(params: headerOption) {
+    return (
+      <div className="magnifyTabs">
+        <div className='tab' onClick={() => params.setShowDate(!params.showDate)}>
+          <svg className="icon" viewBox="0 0 1172 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1479" width="16" height="16"><path d="M162.034526 494.309053H0.175158l258.96421 258.115368 194.223158-258.115368H291.516632s-11.183158-221.642105 258.96421-322.640842C731.499789 104.003368 905.216 213.611789 970.105263 350.315789c72.178526 152.064 59.284211 309.396211-31.178105 402.108632-117.126737 120.117895-280.549053 147.846737-356.082526 129.050947a802.586947 802.586947 0 0 1-161.859369-64.525473s-80.922947 48.397474-64.741052 96.794947 291.341474 150.568421 485.564631 64.525474S1219.947789 707.449263 1145.263158 404.210526C1068.463158 92.335158 784.505263-7.194947 647.599158 10.361263 507.540211 28.294737 377.829053 69.510737 291.516632 171.668211s-65.428211 76.651789-97.118316 161.320421a499.240421 499.240421 0 0 0-32.36379 161.320421z m453.187369-258.101895v290.371368l194.223158 193.576421s86.325895-64.525474 64.741052-96.794947c-25.748211-38.494316-161.859368-129.050947-161.859368-129.050947V236.207158h-97.104842z" fill="#d81e06" p-id="1480"></path></svg>
+        </div>
+      </div>
+    )
+  }
+  settingTabsRender(params: headerOption) {
     return (
       <div className="settingTabs">
         <div className="tab">
@@ -67,10 +76,14 @@ export default class Header extends Component<headerOption> {
           <span className='label'>Font Size</span>
           <input type="number" value={params.fontSize} onChange={(e) => params.setFontSize(Number(e.target.value))} min={1} className='val' />
         </div>
+        <div className="tab">
+          <span className='label'>开始时间</span>
+          <input type="date" value={params.beginDate} onChange={(e) => params.setBeginDate(e.target.value)} className='val' />
+        </div>
       </div>
     )
   }
-  manifyTabsRender (params: headerOption) {
+  manifyTabsRender(params: headerOption) {
     return (
       <div className="magnifyTabs">
         <div className='tab' onClick={() => params.setPlus(params.plus + 0.1)}>
@@ -82,7 +95,7 @@ export default class Header extends Component<headerOption> {
       </div>
     )
   }
-  colorTabsRender (params: headerOption) {
+  colorTabsRender(params: headerOption) {
     return (
       <div className="colorTabs">
         <div className={params.color === '#808080' ? 'tab active' : 'tab'} style={{ background: '#808080' }} onClick={() => params.setColor('#808080')}></div>
@@ -107,7 +120,7 @@ export default class Header extends Component<headerOption> {
       </div>
     )
   }
-  themeRender (params: headerOption) {
+  themeRender(params: headerOption) {
     const themes = [
       ['#C7EDCC', '#6B6B6B'],
       ['#FAF9DE', '#6B6B6B'],
@@ -128,31 +141,32 @@ export default class Header extends Component<headerOption> {
       return <div key={theme[0]} className="theme" style={{ background: theme[0], color: theme[1] }} onClick={() => params.setTheme(theme)}>Text</div>
     })
   }
-  themeTabRender (params: headerOption) {
+  themeTabRender(params: headerOption) {
     const { showPopoverFlag } = this.state
     return (
       <div className="themeTabs">
         <div>主题色：</div>
         <div className="theme" id='theme' style={{ background: params.theme[0], color: params.theme[1] }} onClick={this.showPopoverHandler.bind(this)}>Text</div>
         <div className={showPopoverFlag ? 'themesWrapper' : 'themesWrapper hide'}>
-          { this.themeRender(this.params) }
+          {this.themeRender(this.params)}
         </div>
       </div>
     )
   }
-  showPopoverHandler () {
+  showPopoverHandler() {
     this.setState({
       showPopoverFlag: !this.state.showPopoverFlag
     })
   }
-  render () {
+  render() {
     return (
       <div className="head">
-        { this.chartTabsRender(this.props) }
-        { this.settingTabsRender(this.props) }
-        { this.manifyTabsRender(this.props) }
-        { this.colorTabsRender(this.props) }
-        { this.themeTabRender(this.props) }
+        {this.chartTabsRender(this.props)}
+        {this.toolsTabsRender(this.props)}
+        {this.settingTabsRender(this.props)}
+        {this.manifyTabsRender(this.props)}
+        {this.colorTabsRender(this.props)}
+        {this.themeTabRender(this.props)}
       </div>
     )
   }

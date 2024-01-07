@@ -49,6 +49,8 @@ class Main extends Component<appOption> {
             clear={this.props.clear}
             fontSize={this.props.fontSize}
             theme={this.props.theme}
+            showDate={this.props.showDate}
+            beginDate={this.props.beginDate}
           ></Chart>
         </div>
       )

@@ -13,6 +13,9 @@ function App() {
   const [theme, setTheme] = useState(['#C7EDCC', '#6B6B6B'])
   const [clear, setClear] = useState(true)
   const [fontSize, setFontSize] = useState(12)
+  const [showDate, setShowDate] = useState(false)
+  const today = new Date()
+  const [beginDate, setBeginDate] = useState(today.getFullYear() + '-01-06')
   return (
     <div className="app">
       <Header
@@ -34,8 +37,23 @@ function App() {
         setFontSize={setFontSize}
         theme={theme}
         setTheme={setTheme}
+        showDate={showDate}
+        setShowDate={setShowDate}
+        beginDate={beginDate}
+        setBeginDate={setBeginDate}
       ></Header>
-      <Main currentChartType={currentChartType} step={step} beginValue={beginValue} chartSize={chartSize} plus={plus} color={color} clear={clear} fontSize={fontSize} theme={theme}></Main>
+      <Main
+        currentChartType={currentChartType}
+        step={step} beginValue={beginValue}
+        chartSize={chartSize}
+        plus={plus}
+        color={color}
+        clear={clear}
+        fontSize={fontSize}
+        theme={theme}
+        showDate={showDate}
+        beginDate={beginDate}
+      ></Main>
     </div>
   )
 }

@@ -23,8 +23,12 @@ interface headerOption {
   setClear: function,
   fontSize: number,
   setFontSize: function,
-  theme: string,
-  setTheme: function
+  theme: [string, string],
+  setTheme: function,
+  showDate: boolean,
+  setShowDate: function,
+  beginDate: string,
+  setBeginDate: function
 }
 
 interface appOption {
@@ -36,7 +40,9 @@ interface appOption {
   color: string,
   clear: boolean,
   fontSize: number,
-  theme: string
+  theme: string,
+  showDate: boolean,
+  beginDate: string,
 }
 
 interface commonOption {
