@@ -19,6 +19,9 @@ export default class chart extends Component<appOption, commonOption> {
     window.addEventListener('resize', () => {
       this.init()
     })
+    window.addEventListener('wheel', (e) => {
+      this.scrollbarIns?.moveYHandler(e)
+    })
   }
   componentDidUpdate(prevProps: Readonly<appOption>): void {
     if (this.props.color !== prevProps.color) return

@@ -1,4 +1,4 @@
-import { Group, Rect} from 'zrender'
+import { Group, Rect } from 'zrender'
 interface scrollbarOption {
   width: number
   height: number
@@ -19,14 +19,14 @@ export default class scrollbar {
 
   overflow: string = 'both'
   ratioX: number
-  ratioY:number
+  ratioY: number
 
   horizontalGroup = new Group()
   horizontalTrumb = new Rect()
   verticalGroup = new Group()
   verticalTrumb = new Rect()
 
-  constructor (props: scrollbarOption) {
+  constructor(props: scrollbarOption) {
     this.overflow = props.overflow
     this.width = props.width
     this.height = props.height
@@ -37,7 +37,7 @@ export default class scrollbar {
     this.init()
   }
 
-  init () {
+  init() {
     if (this.overflow === 'x') {
       this.renderHorizontal()
     } else if (this.overflow === 'y') {
@@ -47,7 +47,7 @@ export default class scrollbar {
       this.renderVertical()
     }
   }
-  renderVertical () {
+  renderVertical() {
     const track = new Rect({
       shape: {
         x: this.width - this.trackW,
@@ -83,7 +83,7 @@ export default class scrollbar {
     this.verticalGroup.add(track)
     this.verticalGroup.add(this.verticalTrumb)
   }
-  renderHorizontal () {
+  renderHorizontal() {
     const track = new Rect({
       shape: {
         x: 0,
@@ -100,7 +100,7 @@ export default class scrollbar {
     this.horizontalTrumb = new Rect({
       shape: {
         x: (this.width - length) / 2,
-        y:  this.height - this.trackW,
+        y: this.height - this.trackW,
         width: length,
         height: this.trackW
       },
@@ -119,7 +119,7 @@ export default class scrollbar {
     this.horizontalGroup.add(track)
     this.horizontalGroup.add(this.horizontalTrumb)
   }
-  moveXHandler (event: MouseEvent) {
+  moveXHandler(event: MouseEvent) {
     const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
     let x = horizontalTrumb.x + event.movementX
     const end = this.width - horizontalTrumb.width
@@ -132,9 +132,10 @@ export default class scrollbar {
     const moveEvent = new CustomEvent('moveX', { 'detail': { movement: event.movementX, ratio: event.movementX / end } });
     document.dispatchEvent(moveEvent);
   }
-  moveYHandler (event: MouseEvent) {
+  moveYHandler(event: MouseEvent | WheelEvent) {
+    const move = event.type === 'wheel' ? event.deltaY : -event.movementY
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
-    let y = verticalTrumb.y + event.movementY
+    let y = verticalTrumb.y + move
     const end = this.height - verticalTrumb.height
     y = y > end ? end : y < 0 ? 0 : y
     this.verticalTrumb.attr({
@@ -142,16 +143,16 @@ export default class scrollbar {
         y: y
       }
     })
-    const moveEvent = new CustomEvent('moveY', { 'detail': { movement: event.movementY, ratio: event.movementY / end } });
+    const moveEvent = new CustomEvent('moveY', { 'detail': { movement: move, ratio: move / end } });
     document.dispatchEvent(moveEvent);
   }
-  getHorizontalGroup () {
+  getHorizontalGroup() {
     return this.horizontalGroup
   }
-  getVerticalGroup () {
+  getVerticalGroup() {
     return this.verticalGroup
   }
-  setHorizontalTrumb (params: trumbOption) {
+  setHorizontalTrumb(params: trumbOption) {
     console.log('truck width: ', this.width, 'trumb width: ', params.length)
     this.horizontalTrumb.attr({
       shape: {
@@ -160,7 +161,7 @@ export default class scrollbar {
       }
     })
   }
-  setVerticalTrumb (params: trumbOption) {
+  setVerticalTrumb(params: trumbOption) {
     this.verticalTrumb.attr({
       shape: {
         y: params.begin,
