@@ -7,6 +7,8 @@ import scrollbar from './scrollbar';
 import CanvasPainter from 'zrender/lib/canvas/Painter';
 zrender.registerPainter('canvas', CanvasPainter);
 
+import { downloadImage } from './../../../utils/domSaver'
+
 export default class chart extends Component<appOption, commonOption> {
   zr: zrender.ZRenderType | null = null
   chartIns: hexagon | null = null
@@ -24,7 +26,7 @@ export default class chart extends Component<appOption, commonOption> {
     })
   }
   componentDidUpdate(prevProps: Readonly<appOption>): void {
-    console.log('-------', this.props, this.props.showDate)
+    console.log('update color -------', this.props.color)
     if (this.props.color !== prevProps.color) return
     // 清空标注
     if (this.props.clear !== prevProps.clear) {
@@ -72,6 +74,13 @@ export default class chart extends Component<appOption, commonOption> {
           }
         })
       })
+      this.chartIns?.getDateArr().forEach(text => {
+        text.attr({
+          style: {
+            fill: ['#ff0000', '#0000ff'].includes(text.style.fill) ? text.style.fill : this.props.theme[1]
+          }
+        })
+      })
       return;
     }
     // 显示/隐藏日期
@@ -91,6 +100,49 @@ export default class chart extends Component<appOption, commonOption> {
         })
         this.chartIns.chartGroup.remove(this.chartIns.dateGroup)
       }
+      return
+    }
+    // 保存
+    if (this.props.save !== prevProps.save) {
+      // const length = this.scrollbarIns?.getY() || this.height
+      // if (length < this.height) {
+      //   // 先居中
+      //   this.scrollbarIns?.toCenter()
+      //   this.scaleHandler(this.props.plus - (this.height - length) / this.height)
+      // }
+      const size = {
+        width: this.width * this.width / (this.scrollbarIns?.horizontalTrumb.shape.width || this.width),
+        height: this.height * this.height / (this.scrollbarIns?.verticalTrumb.shape.height || this.height)
+      }
+      const newCenterX = size.width / 2
+      const newCenterY = size.height / 2
+      let el = document.getElementById('save')
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'save'
+      }
+      el.style.width = size.width + 'px'
+      el.style.height = size.height + 'px'
+      el.style.backgroundColor = this.props.theme[0]
+      document.body.appendChild(el)
+      const zr = zrender.init(document.getElementById('save'), { renderer: 'canvas' })
+      const chart = this.chartIns?.customRender(newCenterX, newCenterY)
+      chart && zr.add(chart)
+
+      setTimeout(() => {
+        downloadImage({
+          node: el,
+          size,
+          errorMsg: '',
+          tableRows: []
+        }).then(res => {
+          if (res === 'done') {
+            el && document.body.removeChild(el)
+          } else {
+            alert('出错了！')
+          }
+        });
+      })
       return
     }
     this.zr?.clear()
@@ -116,8 +168,8 @@ export default class chart extends Component<appOption, commonOption> {
     })
     this.scaleHandler()
   }
-  scaleHandler() {
-    let scale = this.chartIns?.scaleHandler(this.props.plus) || { x: 0, y: 0 }
+  scaleHandler(plus?: number) {
+    let scale = this.chartIns?.scaleHandler(plus ? plus : this.props.plus) || { x: 0, y: 0 }
     if (scale.x > 0) {
       this.scrollbarIns?.setHorizontalTrumb({
         begin: (this.width - scale.x) / 2,
@@ -161,8 +213,8 @@ export default class chart extends Component<appOption, commonOption> {
           getBg: () => this.props.color,
           getPlus: () => this.props.plus,
           getFontSize: () => this.props.fontSize,
-          showDate: this.props.showDate,
-          beginDate: this.props.beginDate
+          showDate: () => this.props.showDate,
+          beginDate: this.props.beginDate,
         })
         this.zr?.add(this.chartIns?.getChartGroup())
     }

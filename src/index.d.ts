@@ -28,7 +28,9 @@ interface headerOption {
   showDate: boolean,
   setShowDate: function,
   beginDate: string,
-  setBeginDate: function
+  setBeginDate: function,
+  save: boolean,
+  setSave: function
 }
 
 interface appOption {

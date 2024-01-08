@@ -60,7 +60,7 @@ export default class scrollbar {
         stroke: 'none'
       }
     })
-    const length = 10 // 初始值，瞎写的
+    const length = 0 // 初始值，瞎写的
     this.verticalTrumb = new Rect({
       shape: {
         x: this.width - this.trackW,
@@ -96,7 +96,7 @@ export default class scrollbar {
         stroke: 'none'
       }
     })
-    const length = 10 // 初始值，瞎写的
+    const length = 0 // 初始值，瞎写的
     this.horizontalTrumb = new Rect({
       shape: {
         x: (this.width - length) / 2,
@@ -119,7 +119,7 @@ export default class scrollbar {
     this.horizontalGroup.add(track)
     this.horizontalGroup.add(this.horizontalTrumb)
   }
-  moveXHandler(event: MouseEvent) {
+  moveXHandler(event: { type: string, movementX: number }) {
     const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
     let x = horizontalTrumb.x + event.movementX
     const end = this.width - horizontalTrumb.width
@@ -132,8 +132,8 @@ export default class scrollbar {
     const moveEvent = new CustomEvent('moveX', { 'detail': { movement: event.movementX, ratio: event.movementX / end } });
     document.dispatchEvent(moveEvent);
   }
-  moveYHandler(event: MouseEvent | WheelEvent) {
-    const move = event.type === 'wheel' ? event.deltaY : -event.movementY
+  moveYHandler(event: { type: string, deltaY?: number, movementY?: number }) {
+    const move = event.type === 'wheel' ? event.deltaY || 0 : -(event.movementY || 0)
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
     let y = verticalTrumb.y + move
     const end = this.height - verticalTrumb.height
@@ -152,8 +152,13 @@ export default class scrollbar {
   getVerticalGroup() {
     return this.verticalGroup
   }
+  getY () {
+    return this.verticalTrumb.shape.height
+  }
+  getX () {
+    return this.horizontalTrumb.shape.width
+  }
   setHorizontalTrumb(params: trumbOption) {
-    console.log('truck width: ', this.width, 'trumb width: ', params.length)
     this.horizontalTrumb.attr({
       shape: {
         x: params.begin,
@@ -168,5 +173,15 @@ export default class scrollbar {
         height: params.length
       }
     })
+  }
+  toCenter () {
+    if (this.horizontalTrumb.shape.width > 0) {
+      const centerX = (this.width - this.horizontalTrumb.shape.width) / 2
+      this.moveXHandler({ type: 'move', movementX: this.verticalTrumb.shape.x - centerX })
+    }
+    if (this.verticalTrumb.shape.height > 0) {
+      const centerY = (this.height - this.verticalTrumb.shape.height) / 2
+      this.moveYHandler({ type: 'move', movementY: this.verticalTrumb.shape.y - centerY })
+    }
   }
 }

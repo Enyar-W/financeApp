@@ -64,6 +64,9 @@
   border-right: 1px solid #e1dcdc;
   border-bottom: 1px solid #dfdada;
 }
+input.time {
+  width: 100px;
+}
 .colorTabs {
   padding: 1px 5px;
 }

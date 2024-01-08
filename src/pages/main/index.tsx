@@ -51,6 +51,7 @@ class Main extends Component<appOption> {
             theme={this.props.theme}
             showDate={this.props.showDate}
             beginDate={this.props.beginDate}
+            save={this.props.save}
           ></Chart>
         </div>
       )

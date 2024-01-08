@@ -4,12 +4,11 @@ export default class hexagon {
   chartGroup: Group
   shapeGroup: Group = new Group()
   shapeArr: Polyline[] = []
-  textGroup: Group = new Group()
-  textArr: Text[] = []
-  dateGroup: Group = new Group()
-  dateArr: Text[] = []
+  valueGroup: Group = new Group()
+  valueArr: Text[] = []
   lineGroup: Group = new Group()
   lineArr1: Line[] = []
+  lineArr2: Line[] = []
   block: Rect = new Rect()
   centerX: number = 0
   centerY: number = 0
@@ -24,7 +23,9 @@ export default class hexagon {
     this.centerX = props.width / 2
     this.centerY = props.height / 2
     this.props = props
-    this.r = 50
+    const { chartSize } = this.props
+    // this.r = (this.centerY - 50 - 8) / chartSize < 20 ? 20 : (this.centerY - 50 - 8) / chartSize
+    this.r = this.centerY / chartSize < 20 ? 20 : this.centerY / chartSize
 
     this.chartGroup = new Group({
       x: 0,
@@ -43,14 +44,12 @@ export default class hexagon {
     this.renderLine()
     this.renderShapeAndValue()
     this.chartGroup.add(this.shapeGroup)
-    this.chartGroup.add(this.textGroup)
+    this.chartGroup.add(this.valueGroup)
     this.chartGroup.add(this.lineGroup)
-    this.props.showDate() && this.chartGroup.add(this.dateGroup)
   }
 
   renderShapeAndValue() { // 六边形、文本
     const radian = 2 * Math.PI / 360 * 60
-    const beginDate = new Date(this.props.beginDate).getTime()
     const { chartSize } = this.props
     let value = this.props.beginValue
     for (let i = 0; i < chartSize; i++) {
@@ -104,14 +103,10 @@ export default class hexagon {
           offsetX = valueR - (valueR - valueR / num * ratio) * Math.cos(2 * Math.PI / 360 * 60)
           offsetY = -((valueR - valueR / num * ratio) * Math.sin(2 * Math.PI / 360 * 60))
         }
-        const date = new Date(beginDate + (value - 1) * 24 * 60 * 60 * 1000)
-        const dateStr = (date.getMonth() + 1) + '/' + date.getDate()
-        const textGroup = new Group()
-        const offsetY1 = this.props.getFontSize() / 2
         const text = new Text({
           z: 100,
           x: this.centerX + offsetX,
-          y: this.centerY - offsetY - (this.props.showDate() ? offsetY1 : 0),
+          y: this.centerY - offsetY,
           style: {
             text: '' + value,
             align: 'center',
@@ -122,77 +117,50 @@ export default class hexagon {
             padding: [2, 0, 0, 0],
           }
         })
-        const dateEl = new Text({
-          z: 100,
-          x: this.centerX + offsetX,
-          y: this.centerY - offsetY + offsetY1,
-          style: {
-            text: '' + dateStr,
-            align: 'center',
-            verticalAlign: 'middle',
-            fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : this.props.theme[1],
-            fontSize: this.props.getFontSize(),
-            borderWidth: 1,
-            padding: [2, 0, 0, 0],
-          }
-        })
-        textGroup.add(text)
-        this.textGroup.add(text)
-        this.textArr.push(text)
-        textGroup.add(dateEl)
-        this.dateGroup.add(dateEl)
-        this.dateArr.push(dateEl)
-
+        this.valueGroup.add(text)
+        this.valueArr.push(text)
         text.on('click', () => {
+          const color = this.props.getBg()
           text.attr({
             style: {
-              backgroundColor: text.style.backgroundColor ? '' : this.props.getBg(),
-            }
-          })
-          dateEl.attr({
-            style: {
-              backgroundColor: dateEl.style.backgroundColor ? '' : this.props.getBg(),
+              backgroundColor: text.style.backgroundColor ? '' : color,
+              // borderColor: text.style.borderColor ? '' : color,
             }
           })
         })
-        dateEl.on('click', () => {
-          text.attr({
-            style: {
-              backgroundColor: text.style.backgroundColor ? '' : this.props.getBg(),
-            }
-          })
-          dateEl.attr({
-            style: {
-              backgroundColor: dateEl.style.backgroundColor ? '' : this.props.getBg(),
-            }
-          })
-        })
-        
         value = value + this.props.step
       }
     }
   }
 
   renderLine() {
-    let colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
     for (let i = 0; i < 6; i++) {
-      const angleX = this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 30 * i)
-      const angleY = this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 30 * i)
       this.lineArr1[i] = new Line({
         style: {
-          stroke: colors[i],
-          lineDash: i === 2 || i === 5 ? [3, 1] : []
+          stroke: i % 2 === 0 ? '#ff0000' : '#0000ff',
         },
         shape: {
-          x1: this.centerX - angleX,
-          y1: this.centerY + angleY,
-          x2: this.centerX + angleX,
-          y2: this.centerY - angleY,
-        },
-        originX: this.centerX,
-        originY: this.centerY
+          x1: this.centerX,
+          y1: this.centerY,
+          x2: this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 60 * i),
+          y2: this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 60 * i)
+        }
       })
       this.lineGroup.add(this.lineArr1[i])
+
+      this.lineArr2[i] = new Line({
+        style: {
+          stroke: '#999999',
+          lineDash: [3, 1]
+        },
+        shape: {
+          x1: this.centerX,
+          y1: this.centerY,
+          x2: this.centerX + this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * (30 + (i * 60))),
+          y2: this.centerY - this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)))
+        }
+      })
+      this.lineGroup.add(this.lineArr2[i])
     }
     this.block = new Rect({
       z: 1000,
@@ -207,6 +175,8 @@ export default class hexagon {
         stroke: '#ff0000'
       }
     })
+
+
     const handler = this.moveHandler.bind(this)
     this.lineArr1[0].on('mousedown', () => {
       window.addEventListener('mousemove', handler)
@@ -240,14 +210,18 @@ export default class hexagon {
 
   rerenderLine(angle: number, length: number) {
     this.lineArr1.forEach((line, i) => {
-      const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i - angle)
-      const angleY = length * Math.sin(2 * Math.PI / 360 * 30 * i - angle)
       line.attr({
         shape: {
-          x1: this.centerX - angleX,
-          y1: this.centerY + angleY,
-          x2: this.centerX + angleX,
-          y2: this.centerY - angleY,
+          x2: this.centerX + length * Math.cos(2 * Math.PI / 360 * 60 * i - angle),
+          y2: this.centerY - length * Math.sin(2 * Math.PI / 360 * 60 * i - angle)
+        }
+      })
+    })
+    this.lineArr2.forEach((line, i) => {
+      line.attr({
+        shape: {
+          x2: this.centerX + length * Math.cos(2 * Math.PI / 360 * (30 + (i * 60)) - angle),
+          y2: this.centerY - length * Math.sin(2 * Math.PI / 360 * (30 + (i * 60)) - angle)
         }
       })
     })
@@ -264,17 +238,15 @@ export default class hexagon {
       }
     })
   }
+
   getChartGroup() {
     return this.chartGroup
   }
   getTextGroup() {
-    return this.textGroup
+    return this.valueGroup
   }
   getTextArr() {
-    return this.textArr
-  }
-  getDateArr() {
-    return this.dateArr
+    return this.valueArr
   }
   getShapeArr() {
     return this.shapeArr
@@ -332,74 +304,5 @@ export default class hexagon {
     this.chartGroup.attr({
       y: y > end ? end : y < begin ? begin : y
     })
-  }
-
-  customRender (centerX: number, centerY: number) {
-    const chart = new Group()
-    // 六边形
-    const radian = 2 * Math.PI / 360 * 60
-    const { chartSize } = this.props
-    for (let i = 0; i < chartSize; i++) {
-      const circleR = (i + 1) * this.r
-      const polyline = new Polyline({
-        shape: {
-          points: [
-            [centerX - circleR, centerY],
-            [centerX - circleR * Math.cos(radian), centerY - circleR * Math.sin(radian)],
-            [centerX + circleR * Math.cos(radian), centerY - circleR * Math.sin(radian)],
-            [centerX + circleR, centerY],
-            [centerX + circleR * Math.cos(radian), centerY + circleR * Math.sin(radian)],
-            [centerX - circleR * Math.cos(radian), centerY + circleR * Math.sin(radian)],
-            [centerX - circleR, centerY]
-          ]
-        },
-        style: {
-          fill: 'none',
-          stroke: this.props.theme[1]
-        }
-      })
-      chart.add(polyline)
-    }
-    // 线
-   this.lineArr1.forEach(line => {
-      const newLine = new Line({
-        shape: line.shape,
-        style: line.style
-      })
-      newLine.attr({
-        shape: {
-          x1: line.shape.x1 + (centerX - this.centerX),
-          y1: line.shape.y1 + (centerY - this.centerY),
-          x2: line.shape.x2 + (centerX - this.centerX),
-          y2: line.shape.y2 + (centerY - this.centerY),
-        }
-      })
-      chart.add(newLine)
-    })
-    
-    // 文本
-    this.textArr.forEach(text => {
-      const newText = new Text({
-        style: text.style
-      })
-      newText.attr({
-        x: text.x + (centerX - this.centerX),
-        y: text.y + (centerY - this.centerY),
-      })
-      chart.add(newText)
-    })
-    if (this.props.showDate()) {
-      this.dateArr.forEach(text => {
-        const newText = new Text({
-          style: text.style
-        })
-        newText.attr({
-          x: text.x + (centerX - this.centerX),
-          y: text.y + (centerY - this.centerY),
-        })
-        chart.add(newText)
-      })
-    }
-    return chart
   }
 }

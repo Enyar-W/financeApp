@@ -78,7 +78,7 @@ export default class Header extends Component<headerOption> {
         </div>
         <div className="tab">
           <span className='label'>开始时间</span>
-          <input type="date" value={params.beginDate} onChange={(e) => params.setBeginDate(e.target.value)} className='val' />
+          <input type="date" value={params.beginDate} onChange={(e) => params.setBeginDate(e.target.value)} className='val time' />
         </div>
       </div>
     )
@@ -117,6 +117,7 @@ export default class Header extends Component<headerOption> {
         <div className={params.color === '#804040' ? 'tab active' : 'tab'} style={{ background: '#804040' }} onClick={() => params.setColor('#804040')}></div>
         <div className={params.color === '#FF8040' ? 'tab active' : 'tab'} style={{ background: '#FF8040' }} onClick={() => params.setColor('#FF8040')}></div>
         <div className="tab text" onClick={() => params.setClear(!params.clear)}>清除画布</div>
+        <div className="tab text" onClick={() => params.setSave(!params.save)}>保存</div>
       </div>
     )
   }

@@ -12,6 +12,7 @@ function App() {
   const [color, setColor] = useState('#0080FF')
   const [theme, setTheme] = useState(['#C7EDCC', '#6B6B6B'])
   const [clear, setClear] = useState(true)
+  const [save, setSave] = useState(true)
   const [fontSize, setFontSize] = useState(12)
   const [showDate, setShowDate] = useState(false)
   const today = new Date()
@@ -33,6 +34,8 @@ function App() {
         setColor={setColor}
         clear={clear}
         setClear={setClear}
+        save={save}
+        setSave={setSave}
         fontSize={fontSize}
         setFontSize={setFontSize}
         theme={theme}
@@ -53,6 +56,7 @@ function App() {
         theme={theme}
         showDate={showDate}
         beginDate={beginDate}
+        save={save}
       ></Main>
     </div>
   )
