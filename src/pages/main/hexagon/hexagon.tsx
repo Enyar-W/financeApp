@@ -167,7 +167,7 @@ export default class hexagon {
             }
           })
         })
-        
+
         value = value + this.props.step
       }
     }
@@ -236,11 +236,12 @@ export default class hexagon {
     const y = event.offsetY - this.centerY;
     const angle = Math.atan2(y, x)
     const length = Math.sqrt(x * x + y * y)
-    this.rerenderLine(angle, length)
+    const ratio = Math.abs(2 - this.props.getPlus())
+    this.rerenderLine(angle, length * ratio)
   }
 
   rerenderLine(angle: number, length: number) {
-    length = this.r * this.props.chartSize + 10
+    // length = this.r * this.props.chartSize + 10
     this.lineArr1.forEach((line, i) => {
       const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i - angle)
       const angleY = length * Math.sin(2 * Math.PI / 360 * 30 * i - angle)
@@ -336,7 +337,7 @@ export default class hexagon {
     })
   }
 
-  customRender (centerX: number, centerY: number) {
+  customRender(centerX: number, centerY: number) {
     const chart = new Group()
     // 六边形
     const radian = 2 * Math.PI / 360 * 60
@@ -363,7 +364,7 @@ export default class hexagon {
       chart.add(polyline)
     }
     // 线
-   this.lineArr1.forEach(line => {
+    this.lineArr1.forEach(line => {
       const newLine = new Line({
         shape: line.shape,
         style: line.style
@@ -378,7 +379,7 @@ export default class hexagon {
       })
       chart.add(newLine)
     })
-    
+
     // 文本
     this.textArr.forEach(text => {
       const newText = new Text({
