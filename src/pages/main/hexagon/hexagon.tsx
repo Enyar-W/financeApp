@@ -174,10 +174,11 @@ export default class hexagon {
   }
 
   renderLine() {
-    let colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
+    const colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
+    const length = this.r * this.props.chartSize + 10
     for (let i = 0; i < 6; i++) {
-      const angleX = this.r * this.props.chartSize * Math.cos(2 * Math.PI / 360 * 30 * i)
-      const angleY = this.r * this.props.chartSize * Math.sin(2 * Math.PI / 360 * 30 * i)
+      const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i)
+      const angleY = length * Math.sin(2 * Math.PI / 360 * 30 * i)
       this.lineArr1[i] = new Line({
         style: {
           stroke: colors[i],
@@ -197,7 +198,7 @@ export default class hexagon {
     this.block = new Rect({
       z: 1000,
       shape: {
-        x: this.centerX + this.r * this.props.chartSize - 5,
+        x: this.centerX + length - 5,
         y: this.centerY - 4,
         width: 10,
         height: 8
@@ -239,6 +240,7 @@ export default class hexagon {
   }
 
   rerenderLine(angle: number, length: number) {
+    length = this.r * this.props.chartSize + 10
     this.lineArr1.forEach((line, i) => {
       const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i - angle)
       const angleY = length * Math.sin(2 * Math.PI / 360 * 30 * i - angle)
