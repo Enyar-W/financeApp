@@ -127,6 +127,7 @@ export default class Header extends Component<headerOption> {
       ['#FAF9DE', '#6B6B6B'],
       ['#FFFFFF', '#333333'],
       ['#23272A', '#6C7073'],
+      ['#000000', '#FFFFFF'],
       ['#668971', '#FFFFFF'],
       ['#db9595', '#FFFFFF'],
       ['#609bbd', '#FFFFFF'],
