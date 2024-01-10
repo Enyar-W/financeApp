@@ -1,4 +1,5 @@
 import { Group, Rect } from 'zrender'
+
 interface scrollbarOption {
   width: number
   height: number
@@ -25,6 +26,8 @@ export default class scrollbar {
   horizontalTrumb = new Rect()
   verticalGroup = new Group()
   verticalTrumb = new Rect()
+
+  center = [0, 0]
 
   constructor(props: scrollbarOption) {
     this.overflow = props.overflow
@@ -158,7 +161,16 @@ export default class scrollbar {
   getX () {
     return this.horizontalTrumb.shape.width
   }
+  getEndX () {
+    const verticalTrumb = this.verticalTrumb.getBoundingRect()
+    return this.width - verticalTrumb.width
+  }
+  getEndY () {
+    const verticalTrumb = this.verticalTrumb.getBoundingRect()
+    return this.height - verticalTrumb.height
+  }
   setHorizontalTrumb(params: trumbOption) {
+    this.center[0] = params.begin
     this.horizontalTrumb.attr({
       shape: {
         x: params.begin,
@@ -167,21 +179,12 @@ export default class scrollbar {
     })
   }
   setVerticalTrumb(params: trumbOption) {
+    this.center[1] = params.begin
     this.verticalTrumb.attr({
       shape: {
         y: params.begin,
         height: params.length
       }
     })
-  }
-  toCenter () {
-    if (this.horizontalTrumb.shape.width > 0) {
-      const centerX = (this.width - this.horizontalTrumb.shape.width) / 2
-      this.moveXHandler({ type: 'move', movementX: this.verticalTrumb.shape.x - centerX })
-    }
-    if (this.verticalTrumb.shape.height > 0) {
-      const centerY = (this.height - this.verticalTrumb.shape.height) / 2
-      this.moveYHandler({ type: 'move', movementY: this.verticalTrumb.shape.y - centerY })
-    }
   }
 }

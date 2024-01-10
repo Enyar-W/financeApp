@@ -2,7 +2,7 @@ import { Component } from 'react';
 import * as zrender from 'zrender';
 import wheel24 from "./../wheel24/wheel24";
 import hexagon from "./../hexagon/hexagon";
-import scrollbar from './scrollbar';
+// import scrollbar from './scrollbar';
 
 import CanvasPainter from 'zrender/lib/canvas/Painter';
 zrender.registerPainter('canvas', CanvasPainter);
@@ -12,7 +12,7 @@ import { downloadImage } from './../../../utils/domSaver'
 export default class chart extends Component<appOption, commonOption> {
   zr: zrender.ZRenderType | null = null
   chartIns: hexagon | null = null
-  scrollbarIns: scrollbar | null = null
+
   width: number = 0
   height: number = 0
   chartWrapper: [number, number] = [0, 0]
@@ -20,9 +20,6 @@ export default class chart extends Component<appOption, commonOption> {
     this.init()
     window.addEventListener('resize', () => {
       this.init()
-    })
-    window.addEventListener('wheel', (e) => {
-      this.scrollbarIns?.moveYHandler(e)
     })
   }
   componentDidUpdate(prevProps: Readonly<appOption>): void {
@@ -41,7 +38,7 @@ export default class chart extends Component<appOption, commonOption> {
     }
     // 缩放
     if (this.props.plus !== prevProps.plus) {
-      this.scaleHandler()
+      this.chartIns?.setScale()
       return
     }
     // 调整字体大小
@@ -104,9 +101,11 @@ export default class chart extends Component<appOption, commonOption> {
     }
     // 保存
     if (this.props.save !== prevProps.save) {
+      const width = this.chartIns?.scrollbarIns?.horizontalTrumb.shape.width
+      const height = this.chartIns?.scrollbarIns?.verticalTrumb.shape.height
       const size = {
-        width: this.width * this.width / (this.scrollbarIns?.horizontalTrumb.shape.width || this.width),
-        height: this.height * this.height / (this.scrollbarIns?.verticalTrumb.shape.height || this.height)
+        width: this.width * this.width / (width || this.width),
+        height: this.height * this.height / (height || this.height)
       }
       const newCenterX = size.width / 2
       const newCenterY = size.height / 2
@@ -141,7 +140,6 @@ export default class chart extends Component<appOption, commonOption> {
     }
     this.zr?.clear()
     this.getChart()
-    this.scrollbarRender()
   }
   init() {
     this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
@@ -149,40 +147,8 @@ export default class chart extends Component<appOption, commonOption> {
     this.height = this.zr.getHeight();
     this.chartWrapper = [this.width, this.height]
     this.getChart()
-    this.scrollbarRender()
   }
 
-  scrollbarRender() {
-    this.scrollbarIns = new scrollbar({
-      width: this.width,
-      height: this.height,
-      overflow: 'both',
-      ratioX: 1,
-      ratioY: 1
-    })
-    this.scaleHandler()
-  }
-  scaleHandler() {
-    const scale = this.chartIns?.scaleHandler(this.props.plus) || { x: 0, y: 0 }
-    if (scale.x > 0) {
-      this.scrollbarIns?.setHorizontalTrumb({
-        begin: (this.width - scale.x) / 2,
-        length: scale.x
-      })
-      this.scrollbarIns?.getHorizontalGroup() && this.zr?.add(this.scrollbarIns?.getHorizontalGroup())
-    } else {
-      this.scrollbarIns?.getHorizontalGroup() && this.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
-    }
-    if (scale.y > 0) {
-      this.scrollbarIns?.setVerticalTrumb({
-        begin: (this.height - scale.y) / 2,
-        length: scale.y
-      })
-      this.scrollbarIns?.getVerticalGroup() && this.zr?.add(this.scrollbarIns?.getVerticalGroup())
-    } else {
-      this.scrollbarIns?.getVerticalGroup() && this.zr?.remove(this.scrollbarIns?.getVerticalGroup())
-    }
-  }
   getChart() {
     switch (this.props.currentChartType) {
       case 'wheel24':

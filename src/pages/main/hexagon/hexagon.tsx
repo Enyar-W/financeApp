@@ -1,6 +1,7 @@
 import { Group, Line, Text, Polyline, Rect } from 'zrender'
-
+import scrollbar from './../common/scrollbar';
 export default class hexagon {
+  scrollbarIns: scrollbar | null = null
   chartGroup: Group
   shapeGroup: Group = new Group()
   shapeArr: Polyline[] = []
@@ -14,7 +15,8 @@ export default class hexagon {
   centerX: number = 0
   centerY: number = 0
   r: number = 0
-  plus = 1
+  lineLength: number = 0
+  plus = [1, 1]
   scale = {
     x: 0,
     y: 0
@@ -25,7 +27,7 @@ export default class hexagon {
     this.centerY = props.height / 2
     this.props = props
     this.r = 50
-
+    this.lineLength =  this.r * props.chartSize + 10
     this.chartGroup = new Group({
       x: 0,
       y: 0,
@@ -37,6 +39,9 @@ export default class hexagon {
     this.init()
     document.addEventListener('moveX', this.moveXHandler.bind(this))
     document.addEventListener('moveY', this.moveYHandler.bind(this))
+    window.addEventListener('wheel', (e) => {
+      this.scrollbarIns?.moveYHandler(e)
+    })
   }
 
   init() {
@@ -46,8 +51,40 @@ export default class hexagon {
     this.chartGroup.add(this.textGroup)
     this.chartGroup.add(this.lineGroup)
     this.props.showDate() && this.chartGroup.add(this.dateGroup)
+    this.scrollbarRender()
   }
 
+  scrollbarRender() {
+    this.scrollbarIns = new scrollbar({
+      width: this.props.width,
+      height: this.props.height,
+      overflow: 'both',
+      ratioX: 1,
+      ratioY: 1
+    })
+    this.setScale()
+  }
+  setScale() {
+    const scale = this.scaleHandler(this.props.getPlus()) || { x: 0, y: 0 }
+    if (scale.x > 0) {
+      this.scrollbarIns?.setHorizontalTrumb({
+        begin: (this.props.width - scale.x) / 2,
+        length: scale.x
+      })
+      this.scrollbarIns?.getHorizontalGroup() && this.props.zr?.add(this.scrollbarIns?.getHorizontalGroup())
+    } else {
+      this.scrollbarIns?.getHorizontalGroup() && this.props.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
+    }
+    if (scale.y > 0) {
+      this.scrollbarIns?.setVerticalTrumb({
+        begin: (this.props.height - scale.y) / 2,
+        length: scale.y
+      })
+      this.scrollbarIns?.getVerticalGroup() && this.props.zr?.add(this.scrollbarIns?.getVerticalGroup())
+    } else {
+      this.scrollbarIns?.getVerticalGroup() && this.props.zr?.remove(this.scrollbarIns?.getVerticalGroup())
+    }
+  }
   renderShapeAndValue() { // 六边形、文本
     const radian = 2 * Math.PI / 360 * 60
     const beginDate = new Date(this.props.beginDate).getTime()
@@ -175,10 +212,9 @@ export default class hexagon {
 
   renderLine() {
     const colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
-    const length = this.r * this.props.chartSize + 10
     for (let i = 0; i < 6; i++) {
-      const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i)
-      const angleY = length * Math.sin(2 * Math.PI / 360 * 30 * i)
+      const angleX = this.lineLength * Math.cos(2 * Math.PI / 360 * 30 * i)
+      const angleY = this.lineLength * Math.sin(2 * Math.PI / 360 * 30 * i)
       this.lineArr1[i] = new Line({
         style: {
           stroke: colors[i],
@@ -198,7 +234,7 @@ export default class hexagon {
     this.block = new Rect({
       z: 1000,
       shape: {
-        x: this.centerX + length - 5,
+        x: this.centerX + this.lineLength - 5,
         y: this.centerY - 4,
         width: 10,
         height: 8
@@ -209,7 +245,7 @@ export default class hexagon {
       }
     })
     const handler = this.moveHandler.bind(this)
-    this.lineArr1[0].on('mousedown', () => {
+    this.lineArr1[0].on('mousedown', (e) => {
       window.addEventListener('mousemove', handler)
       window.addEventListener('mouseup', () => {
         window.removeEventListener('mousemove', handler, false)
@@ -232,16 +268,24 @@ export default class hexagon {
     this.lineGroup.add(this.block)
   }
   moveHandler(event: MouseEvent) {
-    const x = event.offsetX - this.centerX;
-    const y = event.offsetY - this.centerY;
+    // 思路：  缩放后的中心点误差，鼠标事件的误差
+    const shape = this.getExtraShape()
+    const centerX = this.centerX + shape[0] / 2
+    const centerY = this.centerY + shape[1] / 2
+    const trumbx = this.scrollbarIns?.horizontalTrumb.shape.x || 0
+    const trumby = this.scrollbarIns?.verticalTrumb.shape.y || 0
+    const center = this.scrollbarIns?.center || [0, 0]
+
+    const x = event.offsetX - centerX + (shape[0] + this.props.width) * (trumbx - center[0]) / (this.scrollbarIns?.getEndX() || 1);
+    const y = event.offsetY - centerY + (shape[1] + this.props.height)  * (trumby - center[1]) / (this.scrollbarIns?.getEndY() || 1);
+  
     const angle = Math.atan2(y, x)
     const length = Math.sqrt(x * x + y * y)
-    const ratio = Math.abs(2 - this.props.getPlus())
-    this.rerenderLine(angle, length * ratio)
+  
+    this.rerenderLine(angle, length)
   }
 
   rerenderLine(angle: number, length: number) {
-    // length = this.r * this.props.chartSize + 10
     this.lineArr1.forEach((line, i) => {
       const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i - angle)
       const angleY = length * Math.sin(2 * Math.PI / 360 * 30 * i - angle)
@@ -287,7 +331,6 @@ export default class hexagon {
   }
 
   scaleHandler(plus: number): { x: number, y: number } {
-    this.plus = plus
     const group = this.chartGroup.getBoundingRect()
     const groupX = group?.x || 0
     const groupY = group?.y || 0
@@ -303,19 +346,28 @@ export default class hexagon {
     const length = groupWidth * plus
     if (length > this.props.width) {
       this.scale.x = this.props.width * this.props.width / length // 横向滚动条滑块的长度
+      this.plus[0] = this.scale.x / this.props.width
     } else {
       this.scale.x = 0
+      this.plus[0] = 1
     }
     if (length > this.props.height) {
       this.scale.y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
+      this.plus[1] = this.scale.y / this.props.height
     } else {
       this.scale.y = 0
+      this.plus[1] = 1
     }
     return this.scale
   }
+  getExtraShape () {
+    const x = this.props.width * this.props.width / this.scale.x - this.props.width
+    const y = this.props.height * this.props.height / this.scale.y - this.props.height // 超出页面部分
+    return [x, y]
+  }
   moveXHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const length = this.props.width * this.props.width / this.scale.x - this.props.width + 100
+    const length = this.getExtraShape()[0] // 超出页面部分
     const begin = - length / 2
     const end = length / 2
     const x = this.chartGroup.x - ratio * length
@@ -325,7 +377,7 @@ export default class hexagon {
   }
   moveYHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const length = this.props.height * this.props.height / this.scale.y - this.props.height + 50
+    const length = this.getExtraShape()[1]
 
     const begin = - length / 2
     const end = length / 2
