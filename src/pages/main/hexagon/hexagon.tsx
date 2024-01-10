@@ -315,8 +315,6 @@ export default class hexagon {
   }
   moveXHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    // const group = this.chartGroup.getBoundingRect()
-    // const length = group.width * this.plus - this.props.width + 50
     const length = this.props.width * this.props.width / this.scale.x - this.props.width + 100
     const begin = - length / 2
     const end = length / 2

@@ -104,12 +104,6 @@ export default class chart extends Component<appOption, commonOption> {
     }
     // 保存
     if (this.props.save !== prevProps.save) {
-      // const length = this.scrollbarIns?.getY() || this.height
-      // if (length < this.height) {
-      //   // 先居中
-      //   this.scrollbarIns?.toCenter()
-      //   this.scaleHandler(this.props.plus - (this.height - length) / this.height)
-      // }
       const size = {
         width: this.width * this.width / (this.scrollbarIns?.horizontalTrumb.shape.width || this.width),
         height: this.height * this.height / (this.scrollbarIns?.verticalTrumb.shape.height || this.height)
@@ -168,8 +162,8 @@ export default class chart extends Component<appOption, commonOption> {
     })
     this.scaleHandler()
   }
-  scaleHandler(plus?: number) {
-    let scale = this.chartIns?.scaleHandler(plus ? plus : this.props.plus) || { x: 0, y: 0 }
+  scaleHandler() {
+    const scale = this.chartIns?.scaleHandler(this.props.plus) || { x: 0, y: 0 }
     if (scale.x > 0) {
       this.scrollbarIns?.setHorizontalTrumb({
         begin: (this.width - scale.x) / 2,
