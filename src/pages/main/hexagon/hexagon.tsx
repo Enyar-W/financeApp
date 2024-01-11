@@ -268,21 +268,20 @@ export default class hexagon {
     this.lineGroup.add(this.block)
   }
   moveHandler(event: MouseEvent) {
-    // 思路：  缩放后的中心点误差，鼠标事件的误差
-    const shape = this.getExtraShape()
-    const centerX = this.centerX + shape[0] / 2
-    const centerY = this.centerY + shape[1] / 2
-    const trumbx = this.scrollbarIns?.horizontalTrumb.shape.x || 0
-    const trumby = this.scrollbarIns?.verticalTrumb.shape.y || 0
-    const center = this.scrollbarIns?.center || [0, 0]
+    // 思路：  缩放后的中心点误差
 
-    const x = event.offsetX - centerX + (shape[0] + this.props.width) * (trumbx - center[0]) / (this.scrollbarIns?.getEndX() || 1);
-    const y = event.offsetY - centerY + (shape[1] + this.props.height)  * (trumby - center[1]) / (this.scrollbarIns?.getEndY() || 1);
-  
+    const ratioX = this.scrollbarIns?.getXMoveRatio() || 0
+    const ratioY = this.scrollbarIns?.getYMoveRatio() || 0
+    const shape = this.getExtraShape()
+    const centerX = this.centerX
+    const centerY = this.centerY
+    // 鼠标位置加上滚动条的位置差
+    const x = event.offsetX + ratioX * shape[0] - centerX
+    const y = event.offsetY + ratioY * shape[1] - centerY
     const angle = Math.atan2(y, x)
     const length = Math.sqrt(x * x + y * y)
   
-    this.rerenderLine(angle, length)
+    this.rerenderLine(angle, length / this.props.getPlus())
   }
 
   rerenderLine(angle: number, length: number) {
@@ -361,8 +360,8 @@ export default class hexagon {
     return this.scale
   }
   getExtraShape () {
-    const x = this.props.width * this.props.width / this.scale.x - this.props.width
-    const y = this.props.height * this.props.height / this.scale.y - this.props.height // 超出页面部分
+    const x = this.scale.x ? this.props.width * this.props.width / this.scale.x - this.props.width : 0
+    const y = this.scale.y ? this.props.height * this.props.height / this.scale.y - this.props.height : 0 // 超出页面部分
     return [x, y]
   }
   moveXHandler(e: MouseEvent) {

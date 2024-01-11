@@ -63,13 +63,12 @@ export default class scrollbar {
         stroke: 'none'
       }
     })
-    const length = 0 // 初始值，瞎写的
     this.verticalTrumb = new Rect({
       shape: {
         x: this.width - this.trackW,
-        y: (this.height - length) / 2,
+        y: 0, // 初始值：没有缩放
         width: this.trackW,
-        height: length
+        height: this.height
       },
       style: {
         fill: '#A7A7A7',
@@ -91,7 +90,7 @@ export default class scrollbar {
       shape: {
         x: 0,
         y: this.height - this.trackW,
-        width: this.width,
+        width: this.width, // 初始值：没有缩放
         height: this.trackW,
       },
       style: {
@@ -99,12 +98,11 @@ export default class scrollbar {
         stroke: 'none'
       }
     })
-    const length = 0 // 初始值，瞎写的
     this.horizontalTrumb = new Rect({
       shape: {
-        x: (this.width - length) / 2,
+        x: 0,
         y: this.height - this.trackW,
-        width: length,
+        width: this.width,
         height: this.trackW
       },
       style: {
@@ -162,12 +160,26 @@ export default class scrollbar {
     return this.horizontalTrumb.shape.width
   }
   getEndX () {
-    const verticalTrumb = this.verticalTrumb.getBoundingRect()
-    return this.width - verticalTrumb.width
+    const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
+    return this.width - horizontalTrumb.width
   }
   getEndY () {
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
     return this.height - verticalTrumb.height
+  }
+  getXMove () {
+    const trumbx = this.horizontalTrumb.shape.x
+    return trumbx - this.center[0]
+  }
+  getXMoveRatio () {
+    return this.getXMove() / this.getEndX()
+  }
+  getYMove () {
+    const trumby = this.verticalTrumb.shape.y
+    return trumby - this.center[1]
+  }
+  getYMoveRatio () {
+    return this.getYMove() / this.getEndY()
   }
   setHorizontalTrumb(params: trumbOption) {
     this.center[0] = params.begin

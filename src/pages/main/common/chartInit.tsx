@@ -23,7 +23,6 @@ export default class chart extends Component<appOption, commonOption> {
     })
   }
   componentDidUpdate(prevProps: Readonly<appOption>): void {
-    console.log('update color -------', this.props.color)
     if (this.props.color !== prevProps.color) return
     // 清空标注
     if (this.props.clear !== prevProps.clear) {
