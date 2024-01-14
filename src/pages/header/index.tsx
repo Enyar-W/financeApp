@@ -147,7 +147,7 @@ export default class Header extends Component<headerOption> {
     const { showPopoverFlag } = this.state
     return (
       <div className="themeTabs">
-        <div>主题色：</div>
+        <div className='txt'>主题色：</div>
         <div className="theme" id='theme' style={{ background: params.theme[0], color: params.theme[1] }} onClick={this.showPopoverHandler.bind(this)}>Text</div>
         <div className={showPopoverFlag ? 'themesWrapper' : 'themesWrapper hide'}>
           {this.themeRender(this.params)}

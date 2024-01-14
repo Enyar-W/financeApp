@@ -2,15 +2,16 @@
   border: 1px solid #A0A0A0;
   display: flex;
 }
+
 .chartTabs,
 .settingTabs,
-.magnifyTabs,
-.colorTabs {
+.magnifyTabs {
   display: flex;
   padding: 1px;
   border-right: 1px solid #A0A0A0;
   align-items: center;
 }
+
 .chartTabs .tab,
 .magnifyTabs .tab {
   color: #EA6A01;
@@ -28,23 +29,28 @@
   font-weight: 600;
   cursor: pointer;
 }
+
 .chartTabs .tab.active {
   box-shadow: inset 2px 2px 0px #A0A0A0;
   border: 1px solid #ffffff;
 }
-.chartTabs .tab > div {
+
+.chartTabs .tab>div {
   flex: 0 0 18px;
   height: 18px;
   line-height: 18px;
   background-color: #EEE8D8;
 }
+
 .wheel24 {
   border-radius: 50%;
   border: 1px solid #EA6A01;
 }
+
 .squal {
   border: 1px solid #EA6A01;
 }
+
 .hexagon {
   font-size: 14px;
 }
@@ -53,10 +59,12 @@
   padding-left: 10px;
   margin-right: 10px;
 }
+
 .settingTabs .label {
   font-size: 12px;
   padding-right: 5px;
 }
+
 .settingTabs input {
   width: 50px;
   box-shadow: inset 2px 2px 0px #A0A0A0;
@@ -64,13 +72,18 @@
   border-right: 1px solid #e1dcdc;
   border-bottom: 1px solid #dfdada;
 }
+
 input.time {
-  width: 100px;
+  width: 104px;
 }
+
 .colorTabs {
   padding: 1px 5px;
+  border-right: 1px solid #A0A0A0;
 }
+
 .colorTabs .tab {
+  display: inline-block;
   width: 20px;
   height: 20px;
   box-shadow: inset 2px 2px 0px #c0bfbf;
@@ -79,9 +92,11 @@ input.time {
   cursor: pointer;
   text-align: center;
 }
+
 .colorTabs .tab.active {
   height: 25px;
 }
+
 .colorTabs .tab.text {
   width: fit-content;
   padding: 0 3px;
@@ -99,6 +114,11 @@ input.time {
   position: relative;
   justify-content: flex-end;
 }
+
+.themeTabs .txt {
+  white-space: nowrap;
+}
+
 .themeTabs .theme {
   width: 50px;
   height: 30px;
@@ -106,12 +126,14 @@ input.time {
   text-align: center;
   cursor: pointer;
 }
+
 .themesWrapper {
   position: absolute;
   right: 0;
   top: 100%;
   z-index: 100;
 }
+
 .hide {
   display: none;
 }

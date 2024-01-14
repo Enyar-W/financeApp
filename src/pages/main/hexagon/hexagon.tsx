@@ -21,13 +21,17 @@ export default class hexagon {
     x: 0,
     y: 0
   }
+  chartSize: number
+  endValue: number // 下一圈开始的数字
   props
   constructor(props: chartOption) {
+    this.chartSize = props.getChartSize()
+    this.endValue = props.beginValue
     this.centerX = props.width / 2
     this.centerY = props.height / 2
     this.props = props
     this.r = 50
-    this.lineLength =  this.r * props.chartSize + 10
+    this.lineLength = this.r * this.chartSize + 10
     this.chartGroup = new Group({
       x: 0,
       y: 0,
@@ -39,14 +43,11 @@ export default class hexagon {
     this.init()
     document.addEventListener('moveX', this.moveXHandler.bind(this))
     document.addEventListener('moveY', this.moveYHandler.bind(this))
-    window.addEventListener('wheel', (e) => {
-      this.scrollbarIns?.moveYHandler(e)
-    })
   }
 
   init() {
+    this.renderShapeAndValue(this.chartSize, 0)
     this.renderLine()
-    this.renderShapeAndValue()
     this.chartGroup.add(this.shapeGroup)
     this.chartGroup.add(this.textGroup)
     this.chartGroup.add(this.lineGroup)
@@ -85,12 +86,10 @@ export default class hexagon {
       this.scrollbarIns?.getVerticalGroup() && this.props.zr?.remove(this.scrollbarIns?.getVerticalGroup())
     }
   }
-  renderShapeAndValue() { // 六边形、文本
+  renderShapeAndValue(chartSize: number, beginSize = 0) { // 六边形、文本
     const radian = 2 * Math.PI / 360 * 60
     const beginDate = new Date(this.props.beginDate).getTime()
-    const { chartSize } = this.props
-    let value = this.props.beginValue
-    for (let i = 0; i < chartSize; i++) {
+    for (let i = beginSize; i < chartSize; i++) { // 每一圈
       const circleR = (i + 1) * this.r
       const polyline = new Polyline({
         shape: {
@@ -141,16 +140,17 @@ export default class hexagon {
           offsetX = valueR - (valueR - valueR / num * ratio) * Math.cos(2 * Math.PI / 360 * 60)
           offsetY = -((valueR - valueR / num * ratio) * Math.sin(2 * Math.PI / 360 * 60))
         }
-        const date = new Date(beginDate + (value - 1) * 24 * 60 * 60 * 1000)
+
+        const date = new Date(beginDate + (this.endValue - this.props.beginValue) * 24 * 60 * 60 * 1000)
         const dateStr = (date.getMonth() + 1) + '/' + date.getDate()
-        const textGroup = new Group()
+
         const offsetY1 = this.props.getFontSize() / 2
         const text = new Text({
           z: 100,
           x: this.centerX + offsetX,
           y: this.centerY - offsetY - (this.props.showDate() ? offsetY1 : 0),
           style: {
-            text: '' + value,
+            text: '' + this.endValue,
             align: 'center',
             verticalAlign: 'middle',
             fill: (valueNum - j) % num === 0 ? '#ff0000' : (valueNum - (j + num / 2)) % num === 0 ? '#0000ff' : this.props.theme[1],
@@ -173,10 +173,9 @@ export default class hexagon {
             padding: [2, 0, 0, 0],
           }
         })
-        textGroup.add(text)
+
         this.textGroup.add(text)
         this.textArr.push(text)
-        textGroup.add(dateEl)
         this.dateGroup.add(dateEl)
         this.dateArr.push(dateEl)
 
@@ -205,11 +204,33 @@ export default class hexagon {
           })
         })
 
-        value = value + this.props.step
+        this.endValue = this.endValue + this.props.step
       }
     }
   }
-
+  changeChartSize() {
+    const chartSize = this.props.getChartSize()
+    if (chartSize > this.chartSize) {
+      this.renderShapeAndValue(chartSize, this.chartSize)
+    } else {
+      for (let i = this.chartSize - 1; i > chartSize - 1; i--) {
+        this.shapeGroup.remove(this.shapeArr[i]);
+        this.shapeArr.splice(i, 1)
+        const last = (1 + i + 1) * (i + 1) / 2 * 6
+        const next = (1 + i) * i / 2 * 6
+        console.log(last, next)
+        for (let j = last - 1; j >= next; j--) {
+          this.textGroup.remove(this.textArr[j]);
+          this.textArr.splice(j, 1)
+          this.dateGroup.remove(this.textArr[j]);
+          this.dateArr.splice(j, 1)
+        }
+        this.endValue = Number(this.textArr[this.textArr.length - 1].style.text) + this.props.step
+      }
+    }
+    this.chartSize = chartSize
+    this.setScale()
+  }
   renderLine() {
     const colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
     for (let i = 0; i < 6; i++) {
@@ -267,6 +288,7 @@ export default class hexagon {
 
     this.lineGroup.add(this.block)
   }
+
   moveHandler(event: MouseEvent) {
     // 思路：  缩放后的中心点误差
 
@@ -280,7 +302,7 @@ export default class hexagon {
     const y = event.offsetY + ratioY * shape[1] - centerY
     const angle = Math.atan2(y, x)
     const length = Math.sqrt(x * x + y * y)
-  
+
     this.rerenderLine(angle, length / this.props.getPlus())
   }
 
@@ -359,7 +381,7 @@ export default class hexagon {
     }
     return this.scale
   }
-  getExtraShape () {
+  getExtraShape() {
     const x = this.scale.x ? this.props.width * this.props.width / this.scale.x - this.props.width : 0
     const y = this.scale.y ? this.props.height * this.props.height / this.scale.y - this.props.height : 0 // 超出页面部分
     return [x, y]
@@ -380,9 +402,12 @@ export default class hexagon {
 
     const begin = - length / 2
     const end = length / 2
+    console.log(length, this.chartGroup.y)
     const y = this.chartGroup.y - ratio * length
+
     this.chartGroup.attr({
-      y: y > end ? end : y < begin ? begin : y
+      y: y > end ? end : y < begin ? begin : y,
+      originY: this.centerY
     })
   }
 
@@ -390,8 +415,7 @@ export default class hexagon {
     const chart = new Group()
     // 六边形
     const radian = 2 * Math.PI / 360 * 60
-    const { chartSize } = this.props
-    for (let i = 0; i < chartSize; i++) {
+    for (let i = 0; i < this.chartSize; i++) {
       const circleR = (i + 1) * this.r
       const polyline = new Polyline({
         shape: {

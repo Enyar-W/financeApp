@@ -137,6 +137,11 @@ export default class chart extends Component<appOption, commonOption> {
       })
       return
     }
+    // chartsize
+    if (this.props.chartSize !== prevProps.chartSize) {
+      this.chartIns?.changeChartSize()
+      return
+    }
     this.zr?.clear()
     this.getChart()
   }
@@ -166,7 +171,7 @@ export default class chart extends Component<appOption, commonOption> {
           height: this.height,
           beginValue: this.props.beginValue,
           step: this.props.step,
-          chartSize: this.props.chartSize,
+          getChartSize: () => this.props.chartSize,
           clear: this.props.clear,
           theme: this.props.theme,
           getBg: () => this.props.color,

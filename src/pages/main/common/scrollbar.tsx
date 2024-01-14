@@ -38,6 +38,9 @@ export default class scrollbar {
     this.ratioY = props.ratioY
 
     this.init()
+    window.addEventListener('wheel', (e) => {
+      this.moveYHandler(e)
+    })
   }
 
   init() {
@@ -134,7 +137,8 @@ export default class scrollbar {
     document.dispatchEvent(moveEvent);
   }
   moveYHandler(event: { type: string, deltaY?: number, movementY?: number }) {
-    const move = event.type === 'wheel' ? event.deltaY || 0 : -(event.movementY || 0)
+    const move = event.type === 'wheel' ? (event.deltaY || 0) / 30 : -(event.movementY || 0)
+    // console.log(move, event.deltaY)
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
     let y = verticalTrumb.y + move
     const end = this.height - verticalTrumb.height
@@ -153,32 +157,32 @@ export default class scrollbar {
   getVerticalGroup() {
     return this.verticalGroup
   }
-  getY () {
+  getY() {
     return this.verticalTrumb.shape.height
   }
-  getX () {
+  getX() {
     return this.horizontalTrumb.shape.width
   }
-  getEndX () {
+  getEndX() {
     const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
     return this.width - horizontalTrumb.width
   }
-  getEndY () {
+  getEndY() {
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
     return this.height - verticalTrumb.height
   }
-  getXMove () {
+  getXMove() {
     const trumbx = this.horizontalTrumb.shape.x
     return trumbx - this.center[0]
   }
-  getXMoveRatio () {
+  getXMoveRatio() {
     return this.getXMove() / this.getEndX()
   }
-  getYMove () {
+  getYMove() {
     const trumby = this.verticalTrumb.shape.y
     return trumby - this.center[1]
   }
-  getYMoveRatio () {
+  getYMoveRatio() {
     return this.getYMove() / this.getEndY()
   }
   setHorizontalTrumb(params: trumbOption) {
