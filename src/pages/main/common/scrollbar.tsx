@@ -5,7 +5,8 @@ interface scrollbarOption {
   height: number
   overflow: 'both' | 'x' | 'y',
   ratioX: number,
-  ratioY: number
+  ratioY: number,
+  dom: Element
 }
 interface trumbOption {
   begin: number,
@@ -29,6 +30,11 @@ export default class scrollbar {
 
   center = [0, 0]
 
+  moveX = { movement: 0, ratio: 0 }
+  moveY = { movement: 0, ratio: 0 }
+  moveXEvent
+  moveYEvent
+  dom
   constructor(props: scrollbarOption) {
     this.overflow = props.overflow
     this.width = props.width
@@ -41,6 +47,9 @@ export default class scrollbar {
     window.addEventListener('wheel', (e) => {
       this.moveYHandler(e)
     })
+    this.dom = props.dom
+    this.moveXEvent = new CustomEvent('moveX', { 'detail': this.moveX });
+    this.moveYEvent = new CustomEvent('moveY', { 'detail': this.moveY });
   }
 
   init() {
@@ -133,12 +142,13 @@ export default class scrollbar {
         x: x
       }
     })
-    const moveEvent = new CustomEvent('moveX', { 'detail': { movement: event.movementX, ratio: event.movementX / end } });
-    document.dispatchEvent(moveEvent);
+    
+    this.moveX.movement = event.movementX
+    this.moveX.ratio = event.movementX / end
+    this.dom.dispatchEvent(this.moveYEvent);
   }
   moveYHandler(event: { type: string, deltaY?: number, movementY?: number }) {
-    const move = event.type === 'wheel' ? (event.deltaY || 0) / 30 : -(event.movementY || 0)
-    // console.log(move, event.deltaY)
+    const move = event.type === 'wheel' ? (event.deltaY || 0) / 50 : -(event.movementY || 0)
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
     let y = verticalTrumb.y + move
     const end = this.height - verticalTrumb.height
@@ -148,8 +158,9 @@ export default class scrollbar {
         y: y
       }
     })
-    const moveEvent = new CustomEvent('moveY', { 'detail': { movement: move, ratio: move / end } });
-    document.dispatchEvent(moveEvent);
+    this.moveY.movement = move
+    this.moveY.ratio = move / end
+    this.dom.dispatchEvent(this.moveYEvent);
   }
   getHorizontalGroup() {
     return this.horizontalGroup

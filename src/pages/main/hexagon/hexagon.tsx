@@ -16,17 +16,17 @@ export default class hexagon {
   centerY: number = 0
   r: number = 0
   lineLength: number = 0
-  plus = [1, 1]
-  scale = {
-    x: 0,
-    y: 0
-  }
   chartSize: number
   endValue: number // 下一圈开始的数字
+  totalWidth: number // 页面总宽度
+  totalHeight: number // 页面总高度
+
   props
   constructor(props: chartOption) {
     this.chartSize = props.getChartSize()
     this.endValue = props.beginValue
+    this.totalWidth = props.width
+    this.totalHeight = props.height
     this.centerX = props.width / 2
     this.centerY = props.height / 2
     this.props = props
@@ -41,8 +41,11 @@ export default class hexagon {
       scaleY: 1
     })
     this.init()
-    document.addEventListener('moveX', this.moveXHandler.bind(this))
-    document.addEventListener('moveY', this.moveYHandler.bind(this))
+    const xHandler = this.moveXHandler.bind(this)
+    const yHandler = this.moveYHandler.bind(this)
+
+    this.props.zr.dom.addEventListener('moveX', xHandler)
+    this.props.zr.dom.addEventListener('moveY', yHandler)
   }
 
   init() {
@@ -61,25 +64,26 @@ export default class hexagon {
       height: this.props.height,
       overflow: 'both',
       ratioX: 1,
-      ratioY: 1
+      ratioY: 1,
+      dom: this.props.zr.dom
     })
     this.setScale()
   }
-  setScale() {
-    const scale = this.scaleHandler(this.props.getPlus()) || { x: 0, y: 0 }
-    if (scale.x > 0) {
+  setScale() { // 设置滚动条
+    const { x, y } = this.scaleHandler(this.props.getPlus())
+    if (x > 0) {
       this.scrollbarIns?.setHorizontalTrumb({
-        begin: (this.props.width - scale.x) / 2,
-        length: scale.x
+        begin: (this.props.width - x) / 2,
+        length: x
       })
       this.scrollbarIns?.getHorizontalGroup() && this.props.zr?.add(this.scrollbarIns?.getHorizontalGroup())
     } else {
       this.scrollbarIns?.getHorizontalGroup() && this.props.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
     }
-    if (scale.y > 0) {
+    if (y > 0) {
       this.scrollbarIns?.setVerticalTrumb({
-        begin: (this.props.height - scale.y) / 2,
-        length: scale.y
+        begin: (this.props.height - y) / 2,
+        length: y
       })
       this.scrollbarIns?.getVerticalGroup() && this.props.zr?.add(this.scrollbarIns?.getVerticalGroup())
     } else {
@@ -218,7 +222,6 @@ export default class hexagon {
         this.shapeArr.splice(i, 1)
         const last = (1 + i + 1) * (i + 1) / 2 * 6
         const next = (1 + i) * i / 2 * 6
-        console.log(last, next)
         for (let j = last - 1; j >= next; j--) {
           this.textGroup.remove(this.textArr[j]);
           this.textArr.splice(j, 1)
@@ -289,17 +292,19 @@ export default class hexagon {
     this.lineGroup.add(this.block)
   }
 
-  moveHandler(event: MouseEvent) {
+  moveHandler(event: MouseEvent) { // 线的旋转缩放
     // 思路：  缩放后的中心点误差
 
     const ratioX = this.scrollbarIns?.getXMoveRatio() || 0
     const ratioY = this.scrollbarIns?.getYMoveRatio() || 0
-    const shape = this.getExtraShape()
+    // const shape = this.getExtraShape()
+    const extraX = this.totalWidth - this.props.width
+    const extraY = this.totalHeight - this.props.height
     const centerX = this.centerX
     const centerY = this.centerY
     // 鼠标位置加上滚动条的位置差
-    const x = event.offsetX + ratioX * shape[0] - centerX
-    const y = event.offsetY + ratioY * shape[1] - centerY
+    const x = event.offsetX + ratioX * extraX - centerX
+    const y = event.offsetY + ratioY * extraY - centerY
     const angle = Math.atan2(y, x)
     const length = Math.sqrt(x * x + y * y)
 
@@ -365,30 +370,30 @@ export default class hexagon {
     })
 
     const length = groupWidth * plus
+    let x = 0 // 横向滚动条滑块的长度
+    let y = 0 // 纵向滚动条滑块的长度
+    this.totalWidth = this.props.width
+    this.totalHeight = this.props.height
     if (length > this.props.width) {
-      this.scale.x = this.props.width * this.props.width / length // 横向滚动条滑块的长度
-      this.plus[0] = this.scale.x / this.props.width
-    } else {
-      this.scale.x = 0
-      this.plus[0] = 1
+      x = this.props.width * this.props.width / length 
+      this.totalWidth = length
     }
+
     if (length > this.props.height) {
-      this.scale.y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
-      this.plus[1] = this.scale.y / this.props.height
-    } else {
-      this.scale.y = 0
-      this.plus[1] = 1
+      y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
+      this.totalHeight = Number(length)
     }
-    return this.scale
+    return { x, y }
   }
-  getExtraShape() {
-    const x = this.scale.x ? this.props.width * this.props.width / this.scale.x - this.props.width : 0
-    const y = this.scale.y ? this.props.height * this.props.height / this.scale.y - this.props.height : 0 // 超出页面部分
-    return [x, y]
-  }
+  // getExtraShape() {
+  //   const x = this.scaleX ? this.props.width * this.props.width / this.scaleX - this.props.width : 0
+  //   const y = this.scaleY ? this.props.height * this.props.height / this.scaleY - this.props.height : 0 // 超出页面部分
+  //   return [x, y]
+  // }
   moveXHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const length = this.getExtraShape()[0] // 超出页面部分
+    // const length = this.getExtraShape()[0] // 超出页面部分
+    const length = this.totalWidth - this.props.width
     const begin = - length / 2
     const end = length / 2
     const x = this.chartGroup.x - ratio * length
@@ -398,13 +403,12 @@ export default class hexagon {
   }
   moveYHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
-    const length = this.getExtraShape()[1]
-
-    const begin = - length / 2
+    // const length = this.getExtraShape()[1]
+    const length = this.totalHeight - this.props.height
+    const begin = -length / 2
     const end = length / 2
-    console.log(length, this.chartGroup.y)
-    const y = this.chartGroup.y - ratio * length
 
+    const y = this.chartGroup.y - ratio * length
     this.chartGroup.attr({
       y: y > end ? end : y < begin ? begin : y,
       originY: this.centerY

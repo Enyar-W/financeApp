@@ -2,7 +2,6 @@ import { Component } from 'react';
 import * as zrender from 'zrender';
 import wheel24 from "./../wheel24/wheel24";
 import hexagon from "./../hexagon/hexagon";
-// import scrollbar from './scrollbar';
 
 import CanvasPainter from 'zrender/lib/canvas/Painter';
 zrender.registerPainter('canvas', CanvasPainter);
