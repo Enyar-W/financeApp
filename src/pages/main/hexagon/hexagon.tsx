@@ -225,7 +225,7 @@ export default class hexagon {
         for (let j = last - 1; j >= next; j--) {
           this.textGroup.remove(this.textArr[j]);
           this.textArr.splice(j, 1)
-          this.dateGroup.remove(this.textArr[j]);
+          this.dateGroup.remove(this.dateArr[j]);
           this.dateArr.splice(j, 1)
         }
         this.endValue = Number(this.textArr[this.textArr.length - 1].style.text) + this.props.step
@@ -398,11 +398,13 @@ export default class hexagon {
     const end = length / 2
     const x = this.chartGroup.x - ratio * length
     this.chartGroup.attr({
-      x: x > end ? end : x < begin ? begin : x
+      x: x > end ? end : x < begin ? begin : x,
+      originX: this.centerX
     })
   }
   moveYHandler(e: MouseEvent) {
     const { movement, ratio } = e.detail
+    console.log('-------', movement, this.totalHeight)
     // const length = this.getExtraShape()[1]
     const length = this.totalHeight - this.props.height
     const begin = -length / 2

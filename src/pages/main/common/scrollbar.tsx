@@ -145,7 +145,7 @@ export default class scrollbar {
     
     this.moveX.movement = event.movementX
     this.moveX.ratio = event.movementX / end
-    this.dom.dispatchEvent(this.moveYEvent);
+    this.dom.dispatchEvent(this.moveXEvent);
   }
   moveYHandler(event: { type: string, deltaY?: number, movementY?: number }) {
     const move = event.type === 'wheel' ? (event.deltaY || 0) / 50 : -(event.movementY || 0)
