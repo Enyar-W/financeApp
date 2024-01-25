@@ -64,6 +64,7 @@ export default class scrollbar {
   }
   renderVertical() {
     const track = new Rect({
+      z: 9998,
       shape: {
         x: this.width - this.trackW,
         y: 0,
@@ -76,6 +77,7 @@ export default class scrollbar {
       }
     })
     this.verticalTrumb = new Rect({
+      z: 9999,
       shape: {
         x: this.width - this.trackW,
         y: 0, // 初始值：没有缩放
@@ -99,6 +101,7 @@ export default class scrollbar {
   }
   renderHorizontal() {
     const track = new Rect({
+      z: 9998,
       shape: {
         x: 0,
         y: this.height - this.trackW,
@@ -111,6 +114,7 @@ export default class scrollbar {
       }
     })
     this.horizontalTrumb = new Rect({
+      z: 9999,
       shape: {
         x: 0,
         y: this.height - this.trackW,
@@ -169,10 +173,10 @@ export default class scrollbar {
     return this.verticalGroup
   }
   getY() {
-    return this.verticalTrumb.shape.height
+    return this.verticalTrumb.shape.y
   }
   getX() {
-    return this.horizontalTrumb.shape.width
+    return this.horizontalTrumb.shape.x
   }
   getEndX() {
     const horizontalTrumb = this.horizontalTrumb.getBoundingRect()
@@ -197,7 +201,7 @@ export default class scrollbar {
     return this.getYMove() / this.getEndY()
   }
   setHorizontalTrumb(params: trumbOption) {
-    this.center[0] = params.begin
+    this.center[0] = (this.width - params.length) / 2
     this.horizontalTrumb.attr({
       shape: {
         x: params.begin,
@@ -206,7 +210,7 @@ export default class scrollbar {
     })
   }
   setVerticalTrumb(params: trumbOption) {
-    this.center[1] = params.begin
+    this.center[1] = (this.height - params.length) / 2
     this.verticalTrumb.attr({
       shape: {
         y: params.begin,

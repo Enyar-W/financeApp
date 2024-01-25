@@ -21,6 +21,16 @@ export default class hexagon {
   totalWidth: number // 页面总宽度
   totalHeight: number // 页面总高度
 
+  chartRect = { // 图表超出视图的标记
+    xBegin: 0,
+    xEnd: 0,
+    yBegin: 0,
+    yEnd: 0
+  }
+
+  hasScrollerX = false
+  hasScrollerY = false
+  
   props
   constructor(props: chartOption) {
     this.chartSize = props.getChartSize()
@@ -33,8 +43,6 @@ export default class hexagon {
     this.r = 50
     this.lineLength = this.r * this.chartSize + 10
     this.chartGroup = new Group({
-      x: 0,
-      y: 0,
       originX: this.centerX,
       originY: this.centerY,
       scaleX: 1,
@@ -69,26 +77,158 @@ export default class hexagon {
     })
     this.setScale()
   }
-  setScale() { // 设置滚动条
+   // 设置滚动条：改变圈数、初始化的时候都需要重新设置滚动条的滚轴
+  setScale() {
     const { x, y } = this.scaleHandler(this.props.getPlus())
-    if (x > 0) {
+    if (x > 0) { // 设置滚动条的位置
+      // const center = (this.props.width - x) / 2; // 滚动条的中心位置
+
+      // 如果已经有滚动条的情况下，要计算出滚动条重新计算后对应的位置，否则初始化滚动条时，默认中间位置
+      let currentX = (this.props.width - x) / 2 // 默认中间位置
+      let scrollerXEnd = this.props.width - x;
+      if (this.hasScrollerX && this.scrollbarIns) {
+        currentX = this.scrollbarIns?.getX()
+        scrollerXEnd = this.scrollbarIns?.getEndX()
+      }
+      
+      const ratioX = currentX / scrollerXEnd
+
       this.scrollbarIns?.setHorizontalTrumb({
-        begin: (this.props.width - x) / 2,
+        begin: (this.props.width - x) * ratioX,
         length: x
       })
+      this.chartGroup.attr({
+        x: -(this.totalWidth - this.props.width) * (ratioX - 0.5)
+      })
       this.scrollbarIns?.getHorizontalGroup() && this.props.zr?.add(this.scrollbarIns?.getHorizontalGroup())
+      this.hasScrollerX = true
     } else {
       this.scrollbarIns?.getHorizontalGroup() && this.props.zr?.remove(this.scrollbarIns?.getHorizontalGroup())
+      this.hasScrollerX = false
+      this.chartGroup.attr({
+        x: 0
+      })
     }
     if (y > 0) {
+      let currentY = (this.props.height - y) / 2 // 默认中间位置
+      let scrollerYEnd = this.props.height - y
+      if (this.hasScrollerY && this.scrollbarIns) {
+        currentY = this.scrollbarIns?.getY()
+        scrollerYEnd = this.scrollbarIns?.getEndY()
+      }
+      const ratioY = currentY / scrollerYEnd
       this.scrollbarIns?.setVerticalTrumb({
-        begin: (this.props.height - y) / 2,
+        begin: (this.props.height - y) * ratioY,
         length: y
       })
+      this.chartGroup.attr({
+        y: -(this.totalHeight - this.props.height) * (ratioY - 0.5)
+      })
       this.scrollbarIns?.getVerticalGroup() && this.props.zr?.add(this.scrollbarIns?.getVerticalGroup())
+      this.hasScrollerY = true
     } else {
       this.scrollbarIns?.getVerticalGroup() && this.props.zr?.remove(this.scrollbarIns?.getVerticalGroup())
+      this.hasScrollerY = false
+      this.chartGroup.attr({
+        y: 0
+      })
     }
+  }
+  // 缩放图表
+  scaleHandler(plus: number): { x: number, y: number } {
+    this.chartGroup.attr({
+      scaleX: plus,
+      scaleY: plus,
+      originX: this.centerX,
+      originY: this.centerY
+    })
+    
+    const group = this.chartGroup.getBoundingRect()
+    const groupWidth = group?.width || 0
+    const length = groupWidth * plus
+    // 横向滚动条滑块的长度
+    let x = 0
+    this.totalWidth = this.props.width
+    if (length > this.props.width) {
+      x = this.props.width * this.props.width / length
+      this.totalWidth = Number(length)
+    }
+    
+    // 纵向滚动条滑块的长度
+    let y = 0
+    this.totalHeight = this.props.height
+    if (length > this.props.height) {
+      y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
+      this.totalHeight = Number(length)
+    }
+
+    // 重新计算图表超出视图的距离
+    const lengthX = this.totalWidth - this.props.width
+    const lengthY = this.totalHeight - this.props.height
+    this.chartRect = {
+      xBegin: -lengthX / 2,
+      xEnd: lengthX / 2,
+      yBegin: -lengthY / 2,
+      yEnd: lengthY / 2
+    }
+    return { x, y }
+  }
+  moveXHandler(e: MouseEvent) {
+    const { movement, ratio } = e.detail
+    const { xBegin, xEnd } = this.chartRect
+    const x = this.chartGroup.x - ratio * (this.totalWidth - this.props.width)
+    this.chartGroup.attr({
+      x: x > xEnd ? xEnd : x < xBegin ? xBegin : x
+    })
+  }
+  moveYHandler(e: MouseEvent) {
+    const { movement, ratio } = e.detail
+    const { yBegin, yEnd } = this.chartRect
+
+    const y = this.chartGroup.y - ratio * (this.totalHeight - this.props.height)
+    this.chartGroup.attr({
+      y: y > yEnd ? yEnd : y < yBegin ? yBegin : y
+    })
+  }
+
+  // 线的旋转缩放
+  moveHandler(event: MouseEvent) {
+    // 思路：缩放后的中心点误差
+    const ratioX = this.scrollbarIns?.getXMoveRatio() || 0
+    const ratioY = this.scrollbarIns?.getYMoveRatio() || 0
+    const extraX = this.totalWidth - this.props.width
+    const extraY = this.totalHeight - this.props.height
+    const centerX = this.centerX
+    const centerY = this.centerY
+    // 鼠标位置加上滚动条的位置差
+    const x = event.offsetX + ratioX * extraX - centerX
+    const y = event.offsetY + ratioY * extraY - centerY
+    const angle = Math.atan2(y, x)
+    const length = Math.sqrt(x * x + y * y)
+
+    this.rerenderLine(angle, length / this.props.getPlus())
+  }
+  changeChartSize() {
+    const chartSize = this.props.getChartSize()
+    if (chartSize > this.chartSize) {
+      this.renderShapeAndValue(chartSize, this.chartSize)
+    } else {
+      for (let i = this.chartSize - 1; i > chartSize - 1; i--) {
+        this.shapeGroup.remove(this.shapeArr[i]);
+        this.shapeArr.splice(i, 1)
+        const last = (1 + i + 1) * (i + 1) / 2 * 6
+        const next = (1 + i) * i / 2 * 6
+        for (let j = last - 1; j >= next; j--) {
+          this.textGroup.remove(this.textArr[j]);
+          this.textArr.splice(j, 1)
+          this.dateGroup.remove(this.dateArr[j]);
+          this.dateArr.splice(j, 1)
+        }
+        this.endValue = Number(this.textArr[this.textArr.length - 1].style.text) + this.props.step
+      }
+    }
+    this.chartSize = chartSize
+    this.setScale()
   }
   renderShapeAndValue(chartSize: number, beginSize = 0) { // 六边形、文本
     const radian = 2 * Math.PI / 360 * 60
@@ -212,28 +352,6 @@ export default class hexagon {
       }
     }
   }
-  changeChartSize() {
-    const chartSize = this.props.getChartSize()
-    if (chartSize > this.chartSize) {
-      this.renderShapeAndValue(chartSize, this.chartSize)
-    } else {
-      for (let i = this.chartSize - 1; i > chartSize - 1; i--) {
-        this.shapeGroup.remove(this.shapeArr[i]);
-        this.shapeArr.splice(i, 1)
-        const last = (1 + i + 1) * (i + 1) / 2 * 6
-        const next = (1 + i) * i / 2 * 6
-        for (let j = last - 1; j >= next; j--) {
-          this.textGroup.remove(this.textArr[j]);
-          this.textArr.splice(j, 1)
-          this.dateGroup.remove(this.dateArr[j]);
-          this.dateArr.splice(j, 1)
-        }
-        this.endValue = Number(this.textArr[this.textArr.length - 1].style.text) + this.props.step
-      }
-    }
-    this.chartSize = chartSize
-    this.setScale()
-  }
   renderLine() {
     const colors = ['#ff0000', '#0000ff', '#999999', '#ff0000', '#0000ff', '#999999']
     for (let i = 0; i < 6; i++) {
@@ -292,25 +410,6 @@ export default class hexagon {
     this.lineGroup.add(this.block)
   }
 
-  moveHandler(event: MouseEvent) { // 线的旋转缩放
-    // 思路：  缩放后的中心点误差
-
-    const ratioX = this.scrollbarIns?.getXMoveRatio() || 0
-    const ratioY = this.scrollbarIns?.getYMoveRatio() || 0
-    // const shape = this.getExtraShape()
-    const extraX = this.totalWidth - this.props.width
-    const extraY = this.totalHeight - this.props.height
-    const centerX = this.centerX
-    const centerY = this.centerY
-    // 鼠标位置加上滚动条的位置差
-    const x = event.offsetX + ratioX * extraX - centerX
-    const y = event.offsetY + ratioY * extraY - centerY
-    const angle = Math.atan2(y, x)
-    const length = Math.sqrt(x * x + y * y)
-
-    this.rerenderLine(angle, length / this.props.getPlus())
-  }
-
   rerenderLine(angle: number, length: number) {
     this.lineArr1.forEach((line, i) => {
       const angleX = length * Math.cos(2 * Math.PI / 360 * 30 * i - angle)
@@ -354,67 +453,6 @@ export default class hexagon {
   }
   getR() {
     return this.r
-  }
-
-  scaleHandler(plus: number): { x: number, y: number } {
-    const group = this.chartGroup.getBoundingRect()
-    const groupX = group?.x || 0
-    const groupY = group?.y || 0
-    const groupWidth = group?.width || 0
-    const groupHeight = group?.height || 0
-    this.chartGroup.attr({
-      scaleX: plus,
-      scaleY: plus,
-      originX: groupX + groupWidth / 2,
-      originY: groupY + groupHeight / 2,
-    })
-
-    const length = groupWidth * plus
-    let x = 0 // 横向滚动条滑块的长度
-    let y = 0 // 纵向滚动条滑块的长度
-    this.totalWidth = this.props.width
-    this.totalHeight = this.props.height
-    if (length > this.props.width) {
-      x = this.props.width * this.props.width / length 
-      this.totalWidth = length
-    }
-
-    if (length > this.props.height) {
-      y = this.props.height * this.props.height / length // 纵向滚动条滑块的长度
-      this.totalHeight = Number(length)
-    }
-    return { x, y }
-  }
-  // getExtraShape() {
-  //   const x = this.scaleX ? this.props.width * this.props.width / this.scaleX - this.props.width : 0
-  //   const y = this.scaleY ? this.props.height * this.props.height / this.scaleY - this.props.height : 0 // 超出页面部分
-  //   return [x, y]
-  // }
-  moveXHandler(e: MouseEvent) {
-    const { movement, ratio } = e.detail
-    // const length = this.getExtraShape()[0] // 超出页面部分
-    const length = this.totalWidth - this.props.width
-    const begin = - length / 2
-    const end = length / 2
-    const x = this.chartGroup.x - ratio * length
-    this.chartGroup.attr({
-      x: x > end ? end : x < begin ? begin : x,
-      originX: this.centerX
-    })
-  }
-  moveYHandler(e: MouseEvent) {
-    const { movement, ratio } = e.detail
-    console.log('-------', movement, this.totalHeight)
-    // const length = this.getExtraShape()[1]
-    const length = this.totalHeight - this.props.height
-    const begin = -length / 2
-    const end = length / 2
-
-    const y = this.chartGroup.y - ratio * length
-    this.chartGroup.attr({
-      y: y > end ? end : y < begin ? begin : y,
-      originY: this.centerY
-    })
   }
 
   customRender(centerX: number, centerY: number) {

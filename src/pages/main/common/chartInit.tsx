@@ -15,6 +15,7 @@ export default class chart extends Component<appOption, commonOption> {
   width: number = 0
   height: number = 0
   chartWrapper: [number, number] = [0, 0]
+
   componentDidMount() {
     this.init()
     window.addEventListener('resize', () => {
@@ -141,9 +142,10 @@ export default class chart extends Component<appOption, commonOption> {
       this.chartIns?.changeChartSize()
       return
     }
-    this.zr?.clear()
-    this.getChart()
+    // this.zr?.clear()
+    // this.getChart()
   }
+
   init() {
     this.zr = zrender.init(document.getElementById('chart'), { renderer: 'canvas' });
     this.width = this.zr.getWidth();
@@ -177,7 +179,7 @@ export default class chart extends Component<appOption, commonOption> {
           getPlus: () => this.props.plus,
           getFontSize: () => this.props.fontSize,
           showDate: () => this.props.showDate,
-          beginDate: this.props.beginDate,
+          beginDate: this.props.beginDate
         })
         this.zr?.add(this.chartIns?.getChartGroup())
     }
@@ -185,7 +187,10 @@ export default class chart extends Component<appOption, commonOption> {
   wheel24Render({ width, height, beginValue, step = 1, chartSize = 5 }: chartOption) {
     return wheel24({ width, height, beginValue, step, chartSize })
   }
+  
   render() {
-    return <div id="chart" style={{ width: '100%', height: '100%', background: '#C7EDCC' }}></div>
+    return (
+      <div id="chart" style={{ width: '100%', height: '100%', background: '#C7EDCC' }}></div>
+    )
   }
 }

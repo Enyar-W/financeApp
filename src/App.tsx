@@ -7,7 +7,7 @@ function App() {
   const [currentChartType, setCurrentChartType] = useState<chartType>('hexagon');
   const [step, setStep] = useState(1);
   const [beginValue, setBeginValue] = useState(1);
-  const [chartSize, setChartSize] = useState(6);
+  const [chartSize, setChartSize] = useState(16);
   const [plus, setPlus] = useState(1)
   const [color, setColor] = useState('#0080FF')
   const [theme, setTheme] = useState(['#C7EDCC', '#6B6B6B'])
