@@ -146,13 +146,13 @@ export default class scrollbar {
         x: x
       }
     })
-    
+
     this.moveX.movement = event.movementX
     this.moveX.ratio = event.movementX / end
     this.dom.dispatchEvent(this.moveXEvent);
   }
   moveYHandler(event: { type: string, deltaY?: number, movementY?: number }) {
-    const move = event.type === 'wheel' ? (event.deltaY || 0) / 50 : -(event.movementY || 0)
+    const move = event.type === 'wheel' ? (event.deltaY || 0) / 50 : (event.movementY || 0)
     const verticalTrumb = this.verticalTrumb.getBoundingRect()
     let y = verticalTrumb.y + move
     const end = this.height - verticalTrumb.height
